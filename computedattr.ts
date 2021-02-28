@@ -1,35 +1,38 @@
-import {AttrPrivate, Attribute, vars, AttrPrivateImpl} from "./evalvite";
+import { AttrPrivate, Attribute, vars } from "./evalvite";
+import AttrPrivateImpl from "./attrprivate";
 
-let {idCounter} = vars;
-const {evalViteDebug} = vars;
+let { idCounter } = vars;
+const { evalViteDebug } = vars;
 
-export class ComputedAttribute<T> extends AttrPrivateImpl<T> {
+export default class ComputedAttribute<T> extends AttrPrivateImpl<T> {
   public debugName: string;
-  private in: Array<AttrPrivate<any>>;
+
+  private in: Array<AttrPrivate<unknown>>;
+
   private cached: T | undefined;
-  private fn: (...args: Array<Attribute<any>>) => T;
+
+  private fn: (...args: Array<Attribute<unknown>>) => T;
 
   constructor(
-    fn: (...args: any[]) => T,
-    inputs: [...t: Array<AttrPrivate<any>>],
+    fn: (...args: unknown[]) => T,
+    inputs: [...t: Array<AttrPrivate<unknown>>],
     debugName?: string
   ) {
-    super(debugName ? debugName : '');
-    this.debugName = debugName
-      ? debugName
-      : `[computed attribute ${idCounter}]`;
-    idCounter = idCounter + 1;
-    this.in = [] as Array<AttrPrivate<any>>; // for a start
-    this.out = [] as Array<AttrPrivate<any>>;
+    super(debugName || "");
+    this.debugName = debugName || `[computed attribute ${idCounter}]`;
+    idCounter += 1;
+    this.in = [] as Array<AttrPrivate<unknown>>; // for a start
+    this.out = [] as Array<AttrPrivate<unknown>>;
     this.fn = fn;
-    inputs.forEach((input: AttrPrivate<any>) => {
+    inputs.forEach((input: AttrPrivate<unknown>) => {
       this.in.push(input);
       input.addOutgoing(this);
     });
-    this.dirty=true;
+    this.dirty = true;
   }
 
-  public set(newValue: T): void {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public set(_newValue: T): void {
     throw new Error(
       `${this.debugName} unable to set the value of a constrained attribute!`
     );
@@ -53,14 +56,19 @@ export class ComputedAttribute<T> extends AttrPrivateImpl<T> {
     if (evalViteDebug) {
       vars.logger(`EVDEBUG: ${this.debugName}: evaluating function parameters`);
     }
-    const params: any = this.in.map((dep: Attribute<any>): any => {
+    // we have disable eslint here because we need to use any to get the typing right
+    // on the line below where we assign this params value to actuals
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const params: any[] = this.in.map((dep: Attribute<unknown>): unknown => {
       return dep.get();
     });
-    const fn = this.fn;
+    const { fn } = this;
     type chk = Parameters<typeof fn>;
     const actuals: chk = params;
     if (evalViteDebug) {
-      vars.logger(`EVDEBUG: ${this.debugName}: evaluating function and returning value`);
+      vars.logger(
+        `EVDEBUG: ${this.debugName}: evaluating function and returning value`
+      );
     }
     this.cached = fn.apply(this, actuals);
     this.dirty = false;

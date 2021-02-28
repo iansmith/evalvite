@@ -1,18 +1,19 @@
-import {SimpleAttribute} from './simpleattr';
-import {ComputedAttribute} from './computedattr';
-import {AttrArray} from './attrarray';
-import {vars} from "./evalvite";
-import {bindModelToComponent as bind} from "./recordcheck";
+import SimpleAttribute from "./simpleattr";
+import ComputedAttribute from "./computedattr";
+import AttrArray from "./attrarray";
+import { vars } from "./evalvite";
+import { bindModelToComponent as bind } from "./recordcheck";
 
-namespace ev  {
-  export class simple<T> extends SimpleAttribute<T>{};
-  export class computed<T> extends ComputedAttribute<T>{};
-  export class array<T> extends AttrArray<T>{};
+// eslint-disable-next-line  @typescript-eslint/no-namespace
+export namespace ev {
+  export const simple = SimpleAttribute;
+  export const computed = ComputedAttribute;
+  export const array = AttrArray;
   export const bindModelToComponent = bind;
-  export function setDebug(b:boolean){
-    vars.evalViteDebug=b;
+  export function setDebug(b: boolean): void {
+    vars.evalViteDebug = b;
   }
-  export function setLogger(fn: (logMessage:string)=>void){
+  export function setLogger(fn: (logMessage: string) => void): void {
     vars.logger = fn;
   }
 }

@@ -1,17 +1,19 @@
-import { AttrPrivateImpl, vars} from "./evalvite";
+import { vars } from "./evalvite";
+import AttrPrivateImpl from "./attrprivate";
 
-let {idCounter} = vars;
-const {evalViteDebug} = vars;
+let { idCounter } = vars;
+const { evalViteDebug } = vars;
 
-export class SimpleAttribute<T> extends AttrPrivateImpl<T> {
+export default class SimpleAttribute<T> extends AttrPrivateImpl<T> {
   public debugName: string;
+
   private value: T;
 
   constructor(startingValue: T, debugName?: string) {
-    super(debugName?debugName:'');
-    this.debugName = debugName ? debugName : `[simple attribute ${idCounter}]`;
-    idCounter = idCounter + 1;
-    this.value=startingValue;
+    super(debugName || "");
+    this.debugName = debugName || `[simple attribute ${idCounter}]`;
+    idCounter += 1;
+    this.value = startingValue;
     this.markDirty();
   }
 
@@ -31,7 +33,9 @@ export class SimpleAttribute<T> extends AttrPrivateImpl<T> {
 
   public get(): T {
     if (evalViteDebug) {
-      vars.logger(`EVDEBUG: ${this.debugName}: get of simple attribute: ${this.value}`);
+      vars.logger(
+        `EVDEBUG: ${this.debugName}: get of simple attribute: ${this.value}`
+      );
     }
     this.dirty = false;
     return this.value;

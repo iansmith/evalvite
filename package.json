@@ -1,0 +1,31 @@
+{
+  "name": "evalvite",
+  "version": "1.0.0",
+  "description": "## Introduction Redux is too big and vastly too complex for what it does.   We need something _much_ simpler, and _much_ smaller. Thus, evalvite.  It's designed for typescript + React and assumes that you are using class-based React components, not FCs.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "format": "prettier --write *.ts",
+    "lintfix": "eslint --fix *.ts"
+  },
+  "keywords": [
+    "constraints",
+    "redux",
+    "data flow",
+    "react components"
+  ],
+  "author": "iansmith@fullstory.com",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/react": "^17.0.2",
+    "eslint": "^7.21.0",
+    "eslint-config-airbnb-typescript-prettier": "^4.1.0",
+    "eslint-config-prettier": "^8.1.0",
+    "prettier": "^2.2.1",
+    "typescript": "^4.2.2"
+  },
+  "dependencies": {
+    "react": "^17.0.1"
+  }
+}
