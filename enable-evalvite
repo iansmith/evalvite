@@ -1,0 +1,35 @@
+
+#
+# this file should be _SOURCED_ into your shell, not executed. it does not
+# a she-bang (#!) for a reason.
+#
+# you will need to go into the `tools` directory and adjust the symlinks to
+# select the version of node, npm, and other tools you want. the `tools`
+# directory will be the place where all tools are found (not /usr/local/bin
+# or similar "global" directory).  If you want to use the version in your
+# /usr/local/bin or similar, just make the symlink in tools point to it.
+#
+# it sets up all the PATH and other vars you need for doing development
+# on this package (evalvite).
+#
+# it is meant to be sourced _ONLY_ when your current directory is the
+# directory that contains this script.
+#
+# this approach has been validated by 30-40 years of experience.  you want
+# to know _exactly_ what your are running in terms of tools and versions. this
+# approach is at least one order of magnitude simpler than things like node version
+# manager (nvm) or similar.
+#
+
+# this path is _deliberately_ small. this is for the shell in which you do development
+# tasks like `npm run` or similar.  This value should _NEVER_ contain constructions
+# like export PATH=${PATH}:/blah/blah because that makes this script non-idempotent
+# and you want to be sure that you can source this script and it will _do the
+# right thing_.
+export PATH=${PWD}/tools:/usr/bin:/bin:/usr/sbin:/sbin:/Library/Apple/usr/bin
+
+echo development for evalvite is set to
+echo -n npm:
+npm --version
+echo -n node:
+node --version
