@@ -1,5 +1,5 @@
 // do this intermediate class so we can share code with the dirty marks and the outgoing edges
-import { AttrPrivate, evKeyedComponent, vars } from "./evalvite";
+import { AttrPrivate, evKeyedComponent, vars } from './evalvite';
 
 // to prevent annoying TS thing with {}
 type empty = { [key: string]: unknown };
@@ -13,7 +13,7 @@ export default abstract class AttrPrivateImpl<T> implements AttrPrivate<T> {
 
   protected comp: evKeyedComponent | undefined = undefined;
 
-  protected stateName = "";
+  protected stateName = '';
 
   protected initialized = false;
 
@@ -30,20 +30,18 @@ export default abstract class AttrPrivateImpl<T> implements AttrPrivate<T> {
         vars.logger(`EVDEBUG: ${this.debugName}: clearing React component`);
       }
       this.comp = undefined;
-      this.stateName = "";
+      this.stateName = '';
     } else {
       if (this.comp && this.comp === c) {
         // no change case
-        vars.logger(
-          `same ev key found: ${c.props.evKey} so not updating component`
-        );
+        vars.logger(`same ev key found: ${c.props.evKey} so not updating component`);
         return;
       }
       if (this.comp) {
         // this is to prevent a common error
         throw new Error(
           `attempt to connect component "${c},${c.props.evKey}" to an attribute ${this.debugName}, but it already has a component "${this.comp},${this.comp.props.evKey}"\n` +
-            "Did you forget to clear component() from this attribute in componentWillUnmount()?"
+            'Did you forget to clear component() from this attribute in componentWillUnmount()?',
         );
       }
       if (vars.evalViteDebug) {
@@ -57,11 +55,7 @@ export default abstract class AttrPrivateImpl<T> implements AttrPrivate<T> {
 
   public addOutgoing(target: AttrPrivate<unknown>): void {
     if (vars.evalViteDebug) {
-      vars.logger(
-        `EVDEBUG: ${this.debugName}: adding edge -> ${target.debugName}, now ${
-          this.out.length + 1
-        } edges`
-      );
+      vars.logger(`EVDEBUG: ${this.debugName}: adding edge -> ${target.debugName}, now ${this.out.length + 1} edges`);
     }
     let found = false;
     for (let i = 0; i < this.out.length; i += 1) {
@@ -71,18 +65,14 @@ export default abstract class AttrPrivateImpl<T> implements AttrPrivate<T> {
       }
     }
     if (found) {
-      throw new Error(
-        `attempting to add an outgoing edge from ${this.debugName} that already exists`
-      );
+      throw new Error(`attempting to add an outgoing edge from ${this.debugName} that already exists`);
     }
     this.out.push(target);
   }
 
   public removeOutgoing(target: AttrPrivate<unknown>): void {
     if (vars.evalViteDebug) {
-      vars.logger(
-        `EVDEBUG: ${this.debugName}: removing edge -> ${target.debugName}`
-      );
+      vars.logger(`EVDEBUG: ${this.debugName}: removing edge -> ${target.debugName}`);
     }
     let found = false;
     let index = -1; // to force throw
@@ -96,9 +86,7 @@ export default abstract class AttrPrivateImpl<T> implements AttrPrivate<T> {
       }
     }
     if (!found) {
-      throw new Error(
-        `unable to find target in outgoing edges of ${this.debugName}`
-      );
+      throw new Error(`unable to find target in outgoing edges of ${this.debugName}`);
     }
 
     if (out.length > 1) {
@@ -113,25 +101,21 @@ export default abstract class AttrPrivateImpl<T> implements AttrPrivate<T> {
   public markDirty(): void {
     if (this.dirty && !this.initialized) {
       if (vars.evalViteDebug) {
-        vars.logger(
-          `EVDEBUG: ${this.debugName}: no reason to mark dirty, already dirty`
-        );
+        vars.logger(`EVDEBUG: ${this.debugName}: no reason to mark dirty, already dirty`);
       }
       return;
     }
     this.initialized = true;
     if (vars.evalViteDebug) {
       vars.logger(
-        `EVDEBUG: ${this.debugName}: marking dirty recursive start [${this.out.length} edges] ------------- `
+        `EVDEBUG: ${this.debugName}: marking dirty recursive start [${this.out.length} edges] ------------- `,
       );
     }
     this.out.forEach((n: AttrPrivate<unknown>) => {
       n.markDirty();
     });
     if (vars.evalViteDebug) {
-      vars.logger(
-        `EVDEBUG: ${this.debugName}: ------------- marking dirty recursive end`
-      );
+      vars.logger(`EVDEBUG: ${this.debugName}: ------------- marking dirty recursive end`);
     }
     this.dirty = true;
     this.updateComponent();
@@ -143,18 +127,11 @@ export default abstract class AttrPrivateImpl<T> implements AttrPrivate<T> {
       update[this.stateName] = this.get(); // which clears the mark!
       this.comp.setState(update);
       if (vars.evalViteDebug) {
-        vars.logger(
-          `EVDEBUG: ${
-            this.debugName
-          }: setting state in component: ${JSON.stringify(update)}`
-        );
+        vars.logger(`EVDEBUG: ${this.debugName}: setting state in component: ${JSON.stringify(update)}`);
       }
     } else {
       // eslint-disable-next-line no-console
-      console.warn(
-        this.debugName,
-        " marked component dirty, but no connected component"
-      );
+      console.warn(this.debugName, ' marked component dirty, but no connected component');
     }
   }
 

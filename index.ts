@@ -1,8 +1,8 @@
-import SimpleAttribute from "./simpleattr";
-import ComputedAttribute from "./computedattr";
-import AttrArray from "./attrarray";
-import { vars } from "./evalvite";
-import { bindModelToComponent as bind } from "./recordcheck";
+import SimpleAttribute from './simpleattr';
+import ComputedAttribute from './computedattr';
+import AttrArray from './attrarray';
+import { vars } from './evalvite';
+import { bindModelToComponent as bind } from './recordcheck';
 
 // eslint-disable-next-line  @typescript-eslint/no-namespace
 export namespace ev {

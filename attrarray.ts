@@ -1,21 +1,16 @@
-import { AttrPrivate } from "./evalvite";
-import AttrPrivateImpl from "./attrprivate";
+import { AttrPrivate } from './evalvite';
+import AttrPrivateImpl from './attrprivate';
 
-import { instanceOfAttr, modelToAttrFields } from "./recordcheck";
+import { instanceOfAttr, modelToAttrFields } from './recordcheck';
 
-export default class AttrArray<
-  T extends Record<string, unknown>
-> extends AttrPrivateImpl<T[]> {
+export default class AttrArray<T extends Record<string, unknown>> extends AttrPrivateImpl<T[]> {
   private inner: Array<T> = new Array<T>();
 
   constructor(debugName?: string) {
-    super(debugName || "");
+    super(debugName || '');
   }
 
-  private static iterateAttrs(
-    item: Record<string, unknown>,
-    fn: (attr: AttrPrivate<unknown>) => void
-  ) {
+  private static iterateAttrs(item: Record<string, unknown>, fn: (attr: AttrPrivate<unknown>) => void) {
     // we turn off eslint below because the keys that result here are already
     // checked in the modelToAttrFields() function.
     const keys = modelToAttrFields(item);
@@ -42,7 +37,7 @@ export default class AttrArray<
     const value = this.inner.pop();
     this.markDirty();
     if (value === undefined) {
-      throw new Error("unable to pop for AttrArray, result is undefined!");
+      throw new Error('unable to pop for AttrArray, result is undefined!');
     }
     AttrArray.iterateAttrs(value, (attr) => {
       attr.removeOutgoing(this);

@@ -1,5 +1,5 @@
-import { vars } from "./evalvite";
-import AttrPrivateImpl from "./attrprivate";
+import { vars } from './evalvite';
+import AttrPrivateImpl from './attrprivate';
 
 let { idCounter } = vars;
 const { evalViteDebug } = vars;
@@ -10,7 +10,7 @@ export default class SimpleAttribute<T> extends AttrPrivateImpl<T> {
   private value: T;
 
   constructor(startingValue: T, debugName?: string) {
-    super(debugName || "");
+    super(debugName || '');
     this.debugName = debugName || `[simple attribute ${idCounter}]`;
     idCounter += 1;
     this.value = startingValue;
@@ -33,9 +33,7 @@ export default class SimpleAttribute<T> extends AttrPrivateImpl<T> {
 
   public get(): T {
     if (evalViteDebug) {
-      vars.logger(
-        `EVDEBUG: ${this.debugName}: get of simple attribute: ${this.value}`
-      );
+      vars.logger(`EVDEBUG: ${this.debugName}: get of simple attribute: ${this.value}`);
     }
     this.dirty = false;
     return this.value;

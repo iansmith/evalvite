@@ -1,5 +1,5 @@
-import { AttrPrivate, Attribute, vars } from "./evalvite";
-import AttrPrivateImpl from "./attrprivate";
+import { AttrPrivate, Attribute, vars } from './evalvite';
+import AttrPrivateImpl from './attrprivate';
 
 let { idCounter } = vars;
 const { evalViteDebug } = vars;
@@ -13,12 +13,8 @@ export default class ComputedAttribute<T> extends AttrPrivateImpl<T> {
 
   private fn: (...args: Array<Attribute<unknown>>) => T;
 
-  constructor(
-    fn: (...args: unknown[]) => T,
-    inputs: [...t: Array<AttrPrivate<unknown>>],
-    debugName?: string
-  ) {
-    super(debugName || "");
+  constructor(fn: (...args: unknown[]) => T, inputs: [...t: Array<AttrPrivate<unknown>>], debugName?: string) {
+    super(debugName || '');
     this.debugName = debugName || `[computed attribute ${idCounter}]`;
     idCounter += 1;
     this.in = [] as Array<AttrPrivate<unknown>>; // for a start
@@ -33,22 +29,16 @@ export default class ComputedAttribute<T> extends AttrPrivateImpl<T> {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public set(_newValue: T): void {
-    throw new Error(
-      `${this.debugName} unable to set the value of a constrained attribute!`
-    );
+    throw new Error(`${this.debugName} unable to set the value of a constrained attribute!`);
   }
 
   public get(): T {
     if (!this.dirty) {
       if (this.cached === undefined) {
-        throw new Error(
-          `${this.debugName} attribute is not dirty but has no previously cached value`
-        );
+        throw new Error(`${this.debugName} attribute is not dirty but has no previously cached value`);
       }
       if (evalViteDebug) {
-        vars.logger(
-          `EVDEBUG: ${this.debugName}: no reason to recompute function, have cached value`
-        );
+        vars.logger(`EVDEBUG: ${this.debugName}: no reason to recompute function, have cached value`);
       }
       return this.cached;
     }
@@ -66,9 +56,7 @@ export default class ComputedAttribute<T> extends AttrPrivateImpl<T> {
     type chk = Parameters<typeof fn>;
     const actuals: chk = params;
     if (evalViteDebug) {
-      vars.logger(
-        `EVDEBUG: ${this.debugName}: evaluating function and returning value`
-      );
+      vars.logger(`EVDEBUG: ${this.debugName}: evaluating function and returning value`);
     }
     this.cached = fn.apply(this, actuals);
     this.dirty = false;
