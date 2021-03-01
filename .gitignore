@@ -2,3 +2,7 @@
 /tools
 /.idea
 /lib
+/.local-pack
+*.tgz
+*.log
+/deploy

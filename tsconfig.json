@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
-    "target": "es6",
+    "target": "es5",
     "lib": [
       "dom",
-//      "dom.iterable",
+      "es6",
       "esnext"
     ],
     "allowJs": true,
@@ -20,11 +20,11 @@
     "skipLibCheck": true,
     "strict": true,
 
-//    "jsx": "react-jsx"
+    "jsx": "react-jsx"
   },
   "include": [
     "."
   ],
   //"baseUrl": "./src",
-  "exclude": ["node_modules", "**/__tests__/*"]
+  "exclude": ["node_modules", "**/__tests__/*", "lib", "deploy"]
 }

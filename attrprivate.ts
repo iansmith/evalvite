@@ -1,5 +1,5 @@
 // do this intermediate class so we can share code with the dirty marks and the outgoing edges
-import { AttrPrivate, evKeyedComponent, vars } from './evalvite';
+import { AttrPrivate, vars } from './evalvite';
 
 // to prevent annoying TS thing with {}
 type empty = { [key: string]: unknown };
@@ -11,7 +11,7 @@ export default abstract class AttrPrivateImpl<T> implements AttrPrivate<T> {
 
   protected dirty: boolean;
 
-  protected comp: evKeyedComponent | undefined = undefined;
+  protected comp: React.Component | undefined = undefined;
 
   protected stateName = '';
 
@@ -23,7 +23,7 @@ export default abstract class AttrPrivateImpl<T> implements AttrPrivate<T> {
     this.dirty = false; // this is only true for the simple case
   }
 
-  public component(c: evKeyedComponent | undefined, stateName: string): void {
+  public component(c: React.Component | undefined, stateName: string): void {
     if (!c) {
       // clear the component if you pass falsey (usually undefined)
       if (vars.evalViteDebug) {
@@ -34,13 +34,13 @@ export default abstract class AttrPrivateImpl<T> implements AttrPrivate<T> {
     } else {
       if (this.comp && this.comp === c) {
         // no change case
-        vars.logger(`same ev key found: ${c.props.evKey} so not updating component`);
+        vars.logger(`same component found: ${c}, so not updating component`);
         return;
       }
       if (this.comp) {
         // this is to prevent a common error
         throw new Error(
-          `attempt to connect component "${c},${c.props.evKey}" to an attribute ${this.debugName}, but it already has a component "${this.comp},${this.comp.props.evKey}"\n` +
+          `attempt to connect component "${c} to an attribute ${this.debugName}, but it already has a component "${this.comp}"\n` +
             'Did you forget to clear component() from this attribute in componentWillUnmount()?',
         );
       }

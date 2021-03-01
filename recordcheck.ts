@@ -1,4 +1,4 @@
-import { AttrPrivate, evKeyedComponent } from './evalvite';
+import { AttrPrivate } from './evalvite';
 
 // without disabling this, we can't get the types right on obj (unknown won't work)
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types,@typescript-eslint/no-explicit-any
@@ -27,7 +27,7 @@ export function modelToAttrFields(inst: Record<string, unknown>): Array<string> 
   return result;
 }
 
-export function bindModelToComponent<T>(inst: Record<string, unknown>, c: evKeyedComponent): void {
+export function bindModelToComponent<T>(inst: Record<string, unknown>, c: React.Component): void {
   if (typeof inst !== 'object') {
     // protected from common error
     throw new Error('models must be objects with exactly one level, e.g. {name:"mr. foo", address:"123 fleazil st"}');

@@ -1,11 +1,5 @@
 import React from 'react';
 
-export type evKeyedComponent = React.Component & {
-  props: {
-    evKey: string;
-  };
-};
-
 // Attribute is a wrapper around a value.  Using get() and set()
 // allow the constraint system to perform updates as needed.
 export interface Attribute<T> {
@@ -16,7 +10,7 @@ export interface Attribute<T> {
   // component connects a react component to this attribute.  When the attribute
   // is dirty, the component's visuals are dirty and forceUpdate() is used to
   // cause a redraw.
-  component(c: evKeyedComponent | undefined, stateName: string): void;
+  component(c: React.Component | undefined, stateName: string): void;
 }
 
 // AttrPrivate is an interface that should not be needed by evalvite
