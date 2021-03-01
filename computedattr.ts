@@ -1,4 +1,4 @@
-import { AttrPrivate, Attribute, vars } from './evalvite';
+import { AttrPrivate, Attribute, vars } from './base';
 import AttrPrivateImpl from './attrprivate';
 
 let { idCounter } = vars;

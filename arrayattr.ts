@@ -1,10 +1,10 @@
-import { AttrPrivate } from './evalvite';
+import {Attribute, AttrPrivate} from './base';
 import AttrPrivateImpl from './attrprivate';
 
 import { instanceOfAttr, modelToAttrFields } from './recordcheck';
 
-export default class AttrArray<T extends Record<string, unknown>> extends AttrPrivateImpl<T[]> {
-  private inner: Array<T> = new Array<T>();
+export default class ArrayAttribute<T extends Record<string,unknown>> extends AttrPrivateImpl<T[]> {
+  private inner: T[] =  [] as T[];
 
   constructor(debugName?: string) {
     super(debugName || '');
@@ -39,19 +39,19 @@ export default class AttrArray<T extends Record<string, unknown>> extends AttrPr
     if (value === undefined) {
       throw new Error('unable to pop for AttrArray, result is undefined!');
     }
-    AttrArray.iterateAttrs(value, (attr) => {
+    ArrayAttribute.iterateAttrs(value, (attr) => {
       attr.removeOutgoing(this);
     });
     return value;
   }
 
-  public get(): Array<T> {
+  public get(): T[] {
     this.dirty = false;
-    return this.inner;
+    return this.inner; //ugh, why can't it figure this out?
   }
 
-  public set(a: Array<T>): void {
-    // not clear this is a good idea
+  public set(a: T[]): void {
+    // not clear the use of "set" is a good idea
     while (this.inner.length > 0) {
       this.pop(); // remove all the links to us
     }

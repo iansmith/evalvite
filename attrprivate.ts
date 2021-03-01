@@ -1,5 +1,5 @@
 // do this intermediate class so we can share code with the dirty marks and the outgoing edges
-import { AttrPrivate, vars } from './evalvite';
+import { AttrPrivate, vars } from './base';
 
 // to prevent annoying TS thing with {}
 type empty = { [key: string]: unknown };

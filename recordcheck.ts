@@ -1,4 +1,4 @@
-import { AttrPrivate } from './evalvite';
+import { AttrPrivate } from './base';
 
 // without disabling this, we can't get the types right on obj (unknown won't work)
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types,@typescript-eslint/no-explicit-any
