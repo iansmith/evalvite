@@ -1,10 +1,12 @@
+/* eslint-disable class-methods-use-this, new-cap */
+
+// disabled those because if it wasn't for TS bugs (see below) we wouldn't need
+// to do this type of crap
 import SimpleAttribute from './simpleattr';
 import ComputedAttribute from './computedattr';
-import ArrayAttr from './arrayAttr';
-import {Attribute, AttrPrivate, vars} from './base';
+import { Attribute as attr, vars } from './base';
 import { bindModelToComponent as bind } from './recordcheck';
-import AttrPrivateImpl from "./attrprivate";
-import ArrayAttribute from "./arrayAttr";
+import ArrayAttribute from './arrayattr';
 
 // there is some kind of bug with TS and trying to create the little "convienence
 // grommet" around a package of code.  I tried exporting a constant
@@ -33,25 +35,32 @@ import ArrayAttribute from "./arrayAttr";
 //
 // I was forced to use this approach to at least have some kind of nice notation.
 class ev {
-  debugFn = (d: boolean): void => {
+  setDebug(d: boolean): void {
     vars.evalViteDebug = d;
   }
-  loggerFn = (fn: (s: string) => void): void => {
+
+  setLoggerFunction(fn: (s: string) => void): void {
     vars.logger = fn;
   }
-  simple<T>(t:T): Attribute<T> {
-    return new SimpleAttribute<T>(t);
+
+  simple<T>(t: T, debug?: string): Attribute<T> {
+    return new SimpleAttribute<T>(t, debug);
   }
-  computed<T>(fn: (...args: unknown[]) => T, inputs: [...t: Array<AttrPrivate<unknown>>], debugName?: string): Attribute<T>{
-    return new ComputedAttribute<T>(fn,inputs,debugName);
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  computed<T>(fn: (...restArgs: any[]) => T, inputs: Attribute<unknown>[]): Attribute<T> {
+    return new ComputedAttribute<T>(fn, inputs);
   }
-  array<T extends Record<string, unknown>>(debugName?:string):Attribute<T[]>{
+
+  array<T extends Record<string, unknown>>(debugName?: string): Attribute<T[]> {
     return new ArrayAttribute<T>(debugName) as Attribute<T[]>; // gag, puke: this is awful
   }
-  bindModelToComponent<T extends Record<string,unknown>>(m:T,c:React.Component) {
-    bind<T>(m,c)
+
+  bindModelToComponent<T extends Record<string, unknown>>(m: T, c: React.Component) {
+    bind<T>(m, c);
   }
 }
 
+export type Attribute<T> = attr<T>;
 const evinstance = new ev();
 export default evinstance;

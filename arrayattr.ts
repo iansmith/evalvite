@@ -1,10 +1,10 @@
-import {Attribute, AttrPrivate} from './base';
+import { AttrPrivate } from './base';
 import AttrPrivateImpl from './attrprivate';
 
 import { instanceOfAttr, modelToAttrFields } from './recordcheck';
 
-export default class ArrayAttribute<T extends Record<string,unknown>> extends AttrPrivateImpl<T[]> {
-  private inner: T[] =  [] as T[];
+export default class ArrayAttribute<T extends Record<string, unknown>> extends AttrPrivateImpl<T[]> {
+  private inner: T[] = [] as T[];
 
   constructor(debugName?: string) {
     super(debugName || '');
@@ -47,7 +47,7 @@ export default class ArrayAttribute<T extends Record<string,unknown>> extends At
 
   public get(): T[] {
     this.dirty = false;
-    return this.inner; //ugh, why can't it figure this out?
+    return this.inner; // ugh, why can't it figure this out?
   }
 
   public set(a: T[]): void {

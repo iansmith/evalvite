@@ -7,22 +7,24 @@ const { evalViteDebug } = vars;
 export default class ComputedAttribute<T> extends AttrPrivateImpl<T> {
   public debugName: string;
 
-  private in: Array<AttrPrivate<unknown>>;
+  private in: Array<Attribute<unknown>>;
 
   private cached: T | undefined;
 
-  private fn: (...args: Array<Attribute<unknown>>) => T;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private fn: (...a2: any[]) => T;
 
-  constructor(fn: (...args: unknown[]) => T, inputs: [...t: Array<AttrPrivate<unknown>>], debugName?: string) {
-    super(debugName || '');
-    this.debugName = debugName || `[computed attribute ${idCounter}]`;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  constructor(fn: (...a1: any[]) => T, inputs: Attribute<unknown>[]) {
+    super('');
+    this.debugName = `[computed attribute ${idCounter}]`;
     idCounter += 1;
-    this.in = [] as Array<AttrPrivate<unknown>>; // for a start
-    this.out = [] as Array<AttrPrivate<unknown>>;
+    this.in = [] as Array<Attribute<unknown>>; // for a start
+    this.out = [] as Array<AttrPrivateImpl<unknown>>;
     this.fn = fn;
-    inputs.forEach((input: AttrPrivate<unknown>) => {
+    inputs.forEach((input: Attribute<unknown>) => {
       this.in.push(input);
-      input.addOutgoing(this);
+      (input as AttrPrivate<unknown>).addOutgoing(this);
     });
     this.dirty = true;
   }
@@ -49,12 +51,13 @@ export default class ComputedAttribute<T> extends AttrPrivateImpl<T> {
     // we have disable eslint here because we need to use any to get the typing right
     // on the line below where we assign this params value to actuals
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const params: any[] = this.in.map((dep: Attribute<unknown>): unknown => {
+    const params: unknown[] = this.in.map((dep: Attribute<unknown>): unknown => {
       return dep.get();
     });
     const { fn } = this;
-    type chk = Parameters<typeof fn>;
-    const actuals: chk = params;
+    // type chk = Parameters<typeof fn>;  the rest parametr seems to be biting us here
+    // const actuals: chk = params;
+    const actuals: unknown[] = params;
     if (evalViteDebug) {
       vars.logger(`EVDEBUG: ${this.debugName}: evaluating function and returning value`);
     }
