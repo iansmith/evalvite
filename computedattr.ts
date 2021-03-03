@@ -15,8 +15,8 @@ export default class ComputedAttribute<T> extends AttrPrivateImpl<T> {
   private fn: (...a2: any[]) => T;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constructor(fn: (...a1: any[]) => T, inputs: Attribute<unknown>[]) {
-    super('');
+  constructor(fn: (...a1: any[]) => T, inputs: Attribute<unknown>[], name?: string) {
+    super(name || '');
     this.debugName = `[computed attribute ${idCounter}]`;
     idCounter += 1;
     this.in = [] as Array<Attribute<unknown>>; // for a start
@@ -26,7 +26,6 @@ export default class ComputedAttribute<T> extends AttrPrivateImpl<T> {
       this.in.push(input);
       (input as AttrPrivate<unknown>).addOutgoing(this);
     });
-    this.dirty = true;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -55,7 +54,7 @@ export default class ComputedAttribute<T> extends AttrPrivateImpl<T> {
       return dep.get();
     });
     const { fn } = this;
-    // type chk = Parameters<typeof fn>;  the rest parametr seems to be biting us here
+    // type chk = Parameters<typeof fn>;  the rest parameter seems to be biting us here
     // const actuals: chk = params;
     const actuals: unknown[] = params;
     if (evalViteDebug) {

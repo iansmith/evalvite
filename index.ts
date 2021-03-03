@@ -5,7 +5,7 @@
 import SimpleAttribute from './simpleattr';
 import ComputedAttribute from './computedattr';
 import { Attribute as attr, vars } from './base';
-import { bindModelToComponent as bind } from './recordcheck';
+import { bind, unbind } from './typeutils';
 import ArrayAttribute from './arrayattr';
 
 // there is some kind of bug with TS and trying to create the little "convienence
@@ -48,8 +48,8 @@ class ev {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  computed<T>(fn: (...restArgs: any[]) => T, inputs: Attribute<unknown>[]): Attribute<T> {
-    return new ComputedAttribute<T>(fn, inputs);
+  computed<T>(fn: (...restArgs: any[]) => T, inputs: Attribute<unknown>[], name?: string): Attribute<T> {
+    return new ComputedAttribute<T>(fn, inputs, name);
   }
 
   array<T extends Record<string, unknown>>(debugName?: string): Attribute<T[]> {
@@ -57,7 +57,13 @@ class ev {
   }
 
   bindModelToComponent<T extends Record<string, unknown>>(m: T, c: React.Component) {
+    console.log('bind0', m, c);
     bind<T>(m, c);
+  }
+
+  unbindModelFromComponent<T extends Record<string, unknown>>(m: T, c: React.Component) {
+    console.log('unbind0', m, c);
+    unbind<T>(m, c);
   }
 }
 

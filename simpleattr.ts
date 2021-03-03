@@ -14,7 +14,7 @@ export default class SimpleAttribute<T> extends AttrPrivateImpl<T> {
     this.debugName = debugName || `[simple attribute ${idCounter}]`;
     idCounter += 1;
     this.value = startingValue;
-    this.markDirty();
+    this.markDirty(); // because we have "changed" the value
   }
 
   public set(newValue: T): void {

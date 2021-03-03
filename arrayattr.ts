@@ -1,7 +1,9 @@
 import { AttrPrivate } from './base';
 import AttrPrivateImpl from './attrprivate';
 
-import { instanceOfAttr, modelToAttrFields } from './recordcheck';
+declare function modelToAttrFields(inst: Record<string, unknown>): Array<string>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+declare function instanceOfAttr(obj: any): obj is AttrPrivate<unknown>;
 
 export default class ArrayAttribute<T extends Record<string, unknown>> extends AttrPrivateImpl<T[]> {
   private inner: T[] = [] as T[];
@@ -24,9 +26,8 @@ export default class ArrayAttribute<T extends Record<string, unknown>> extends A
     this.inner.push(item);
     const keysOfAttrs = modelToAttrFields(item);
     keysOfAttrs.forEach((k: string) => {
-      const value = item[k] as AttrPrivate<unknown>;
+      const value = item[k];
       if (instanceOfAttr(value)) {
-        // this is always true, just here for types
         value.addOutgoing(this);
       }
     });
@@ -35,13 +36,14 @@ export default class ArrayAttribute<T extends Record<string, unknown>> extends A
 
   public pop(): T {
     const value = this.inner.pop();
-    this.markDirty();
     if (value === undefined) {
       throw new Error('unable to pop for AttrArray, result is undefined!');
     }
     ArrayAttribute.iterateAttrs(value, (attr) => {
       attr.removeOutgoing(this);
     });
+    // do this AFTER we removed the necessary edges
+    this.markDirty();
     return value;
   }
 
@@ -55,7 +57,7 @@ export default class ArrayAttribute<T extends Record<string, unknown>> extends A
     while (this.inner.length > 0) {
       this.pop(); // remove all the links to us
     }
-    this.dirty = false;
     this.inner = a;
+    this.markDirty();
   }
 }

@@ -1,9 +1,14 @@
-// do this intermediate class so we can share code with the dirty marks and the outgoing edges
+import React from 'react';
+
 import { AttrPrivate, vars } from './base';
 
 // to prevent annoying TS thing with {}
 type empty = { [key: string]: unknown };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+declare function decodeAttribute(a: AttrPrivateImpl<any>): any;
+
+// do this intermediate class so we can share code with the dirty marks and the outgoing edges
 export default abstract class AttrPrivateImpl<T> implements AttrPrivate<T> {
   public debugName: string;
 
@@ -11,46 +16,88 @@ export default abstract class AttrPrivateImpl<T> implements AttrPrivate<T> {
 
   protected dirty: boolean;
 
-  protected comp: React.Component | undefined = undefined;
-
-  protected stateName = '';
+  protected stateName = new Array<string>();
 
   protected initialized = false;
+
+  protected boundComponents = new Array<React.Component>();
 
   protected constructor(n: string) {
     this.debugName = n;
     this.out = [] as Array<AttrPrivate<unknown>>;
-    this.dirty = false; // this is only true for the simple case
+    // this should probably always START in false so the first attempt to setDirty()
+    // will cause the desired effects
+    this.dirty = false;
   }
 
-  public component(c: React.Component | undefined, stateName: string): void {
-    if (!c) {
-      // clear the component if you pass falsey (usually undefined)
-      if (vars.evalViteDebug) {
-        vars.logger(`EVDEBUG: ${this.debugName}: clearing React component`);
+  // returns -1 if the target is not present
+  protected findBoundComponentIndex(target: React.Component): number {
+    for (let i = 0; i < this.boundComponents.length; i += 1) {
+      if (this.boundComponents[i] === target) {
+        return i;
       }
-      this.comp = undefined;
-      this.stateName = '';
-    } else {
-      if (this.comp && this.comp === c) {
-        // no change case
-        vars.logger(`same component found: ${c}, so not updating component`);
-        return;
-      }
-      if (this.comp) {
-        // this is to prevent a common error
-        throw new Error(
-          `attempt to connect component "${c} to an attribute ${this.debugName}, but it already has a component "${this.comp}"\n` +
-            'Did you forget to clear component() from this attribute in componentWillUnmount()?',
-        );
-      }
-      if (vars.evalViteDebug) {
-        vars.logger(`EVDEBUG: ${this.debugName}: setting React component:${c}`);
-      }
-      this.comp = c;
-      this.stateName = stateName;
-      this.markDirty();
     }
+    return -1;
+  }
+
+  public addComponent(c: React.Component, stateName: string): void {
+    if (!c) {
+      if (vars.evalViteDebug) {
+        vars.logger(`EVDEBUG: ${this.debugName} ignoring attempt to addComponent() with a falsey value`);
+      }
+      return;
+    }
+    if (this.findBoundComponentIndex(c) >= 0) {
+      if (vars.evalViteDebug) {
+        vars.logger(`EVDEBUG: ${this.debugName} ignoring attempt to addComponent() which is already present`);
+      }
+      return;
+    }
+    if (!stateName) {
+      throw new Error('no statename provided when attempting to add component to attribute');
+    }
+    if (vars.evalViteDebug) {
+      vars.logger(`EVDEBUG: ${this.debugName}: setting React component:${c}`);
+    }
+    this.boundComponents.push(c);
+    this.stateName.push(stateName); // parallel
+    this.markDirty();
+  }
+
+  public removeComponent(c: React.Component, stateName: string): void {
+    if (!c) {
+      if (vars.evalViteDebug) {
+        vars.logger(`EVDEBUG: ${this.debugName} ignoring attempt to removeComponent() with a falsey value`);
+      }
+      return;
+    }
+    const index = this.findBoundComponentIndex(c);
+    if (index < 0) {
+      if (vars.evalViteDebug) {
+        vars.logger(`EVDEBUG: ${this.debugName} ignoring attempt to removeComponent() which is not present`);
+      }
+      return;
+    }
+    if (!stateName) {
+      throw new Error('attempt to unbind a component without providing state name');
+    }
+    if (this.stateName[index] !== stateName) {
+      throw new Error(`attempt to unbind a component, but provided wrong state name: ${stateName}`);
+    }
+    if (this.boundComponents.length === 1) {
+      this.boundComponents = new Array<React.Component>();
+      this.stateName = new Array<string>();
+      return;
+    }
+    // this is safe, the parallel lists is not ordered
+    const tmpComponent = this.boundComponents[0];
+    const tmpStateName = this.stateName[0];
+    this.boundComponents[0] = this.boundComponents[index];
+    this.stateName[0] = this.stateName[index];
+    this.boundComponents[index] = tmpComponent;
+    this.stateName[index] = tmpStateName;
+    this.boundComponents.pop();
+    this.stateName.pop();
   }
 
   public addOutgoing(target: AttrPrivate<unknown>): void {
@@ -99,7 +146,7 @@ export default abstract class AttrPrivateImpl<T> implements AttrPrivate<T> {
   }
 
   public markDirty(): void {
-    if (this.dirty && !this.initialized) {
+    if (this.dirty && this.initialized) {
       if (vars.evalViteDebug) {
         vars.logger(`EVDEBUG: ${this.debugName}: no reason to mark dirty, already dirty`);
       }
@@ -118,20 +165,33 @@ export default abstract class AttrPrivateImpl<T> implements AttrPrivate<T> {
       vars.logger(`EVDEBUG: ${this.debugName}: ------------- marking dirty recursive end`);
     }
     this.dirty = true;
-    this.updateComponent();
+    this.updateComponents();
   }
 
-  public updateComponent(): void {
-    if (this.comp) {
-      const update: empty = {};
-      update[this.stateName] = this.get(); // which clears the mark!
-      this.comp.setState(update);
+  public updateComponents(): void {
+    if (this.boundComponents.length > 0) {
       if (vars.evalViteDebug) {
-        vars.logger(`EVDEBUG: ${this.debugName}: setting state in component: ${JSON.stringify(update)}`);
+        vars.logger(`EVDEBUG: ${this.debugName}: setting state in all components[${this.boundComponents.length}]`);
+      }
+      for (let i = 0; i < this.boundComponents.length; i += 1) {
+        const update: empty = {};
+        const stateName = this.stateName[i];
+        const comp = this.boundComponents[i];
+        update[stateName] = decodeAttribute(this);
+        comp.setState(update);
+        if (vars.evalViteDebug) {
+          vars.logger(
+            `EVDEBUG: ${
+              this.debugName
+            }: bound component state updated: ${typeof comp} and stateName: ${stateName}, updated to: ${JSON.stringify(
+              update,
+            )}`,
+          );
+        }
       }
     } else {
       // eslint-disable-next-line no-console
-      console.warn(this.debugName, ' marked component dirty, but no connected component');
+      console.warn(this.debugName, ' marked component dirty, but no connected component(s)');
     }
   }
 

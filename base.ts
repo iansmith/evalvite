@@ -10,7 +10,8 @@ export interface Attribute<T> {
   // component connects a react component to this attribute.  When the attribute
   // is dirty, the component's visuals are dirty and forceUpdate() is used to
   // cause a redraw.
-  component(c: React.Component | undefined, stateName: string): void;
+  addComponent(c: React.Component | undefined, stateName: string): void;
+  removeComponent(c: React.Component, stateName: string): void;
 }
 
 // AttrPrivate is an interface that should not be needed by evalvite
