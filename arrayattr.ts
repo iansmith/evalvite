@@ -1,9 +1,7 @@
 import { AttrPrivate } from './base';
 import AttrPrivateImpl from './attrprivate';
-
-declare function modelToAttrFields(inst: Record<string, unknown>): Array<string>;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-declare function instanceOfAttr(obj: any): obj is AttrPrivate<unknown>;
+import {modelToAttrFields,instanceOfAttr} from "./typeutils";
+import {vars} from "./base";
 
 export default class ArrayAttribute<T extends Record<string, unknown>> extends AttrPrivateImpl<T[]> {
   private inner: T[] = [] as T[];
@@ -49,7 +47,7 @@ export default class ArrayAttribute<T extends Record<string, unknown>> extends A
 
   public get(): T[] {
     this.dirty = false;
-    return this.inner; // ugh, why can't it figure this out?
+    return ArrayAttribute.decode(this);
   }
 
   public set(a: T[]): void {
@@ -59,5 +57,13 @@ export default class ArrayAttribute<T extends Record<string, unknown>> extends A
     }
     this.inner = a;
     this.markDirty();
+  }
+
+  public static decode(a:ArrayAttribute<any>):any {
+    //const arr = a.get(); // it knows it's an array here because of guard
+    if (a.inner.length > 0) {
+      return a.inner.map((e: any) => vars.decodeAttribute(e));
+    }
+    return [];
   }
 }

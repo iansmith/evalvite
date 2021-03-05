@@ -64,4 +64,9 @@ export default class ComputedAttribute<T> extends AttrPrivateImpl<T> {
     this.dirty = false;
     return this.cached;
   }
+
+  public static decode(a:ComputedAttribute<any>):any {
+    return a.get();
+  }
+
 }

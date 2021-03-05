@@ -4,9 +4,7 @@ import { AttrPrivate, vars } from './base';
 
 // to prevent annoying TS thing with {}
 type empty = { [key: string]: unknown };
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-declare function decodeAttribute(a: AttrPrivateImpl<any>): any;
+declare var decodeAttribute: (a:any)=> any;
 
 // do this intermediate class so we can share code with the dirty marks and the outgoing edges
 export default abstract class AttrPrivateImpl<T> implements AttrPrivate<T> {
@@ -190,8 +188,10 @@ export default abstract class AttrPrivateImpl<T> implements AttrPrivate<T> {
         }
       }
     } else {
-      // eslint-disable-next-line no-console
-      console.warn(this.debugName, ' marked component dirty, but no connected component(s)');
+      if (vars.warnOnUnboundAttributes){
+        // eslint-disable-next-line no-console
+        console.warn(this.debugName, ' marked component dirty, but no connected component(s)');
+      }
     }
   }
 

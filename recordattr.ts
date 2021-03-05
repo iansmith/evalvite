@@ -1,19 +1,16 @@
 import AttrPrivateImpl from './attrprivate';
-import { AttrPrivate, vars } from './base';
+import { vars } from './base';
+import { modelToAttrFields, instanceOfAttr} from "./typeutils";
 
 let { idCounter } = vars;
 const { evalViteDebug } = vars;
 
-// forward ref
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-declare function decodeAttribute(a: AttrPrivateImpl<any>): any;
-declare function modelToAttrFields(inst: Record<string, unknown>): Array<string>;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-declare function instanceOfAttr(obj: any): obj is AttrPrivate<unknown>;
-
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types,@typescript-eslint/no-explicit-any */
 type empty = { [key: string]: unknown };
+
 export default class RecordAttribute<T extends Record<string, unknown>> extends AttrPrivateImpl<T> {
-  value:  T;
+  value: T;
+
   constructor(value: T, name?: string) {
     super(name || `[record attr ${idCounter}`);
     if (!name) {
@@ -26,7 +23,7 @@ export default class RecordAttribute<T extends Record<string, unknown>> extends 
   }
 
   get(): T {
-    const t = decodeAttribute(this) as T;
+    const t = vars.decodeAttribute(this) as T;
     this.dirty = false;
     if (evalViteDebug) {
       vars.logger(`EVDEBUG: ${this.debugName}: get record attr [${t}]`);
@@ -50,7 +47,18 @@ export default class RecordAttribute<T extends Record<string, unknown>> extends 
     this.markDirty();
   }
 
-  getField(name:string): any {
+  getField(name: string): any {
     return this.value[name];
+  }
+
+  public static decode(a: RecordAttribute<any>):any {
+    const inner = a.value;
+    const names = Object.keys(inner) as Array<string>;
+    const result = {} as empty;
+    names.forEach((k: string) => {
+      // eslint-disable-next-line  @typescript-eslint/no-unused-vars
+      result[k] = vars.decodeAttribute(inner[k]);
+    });
+    return result;
   }
 }

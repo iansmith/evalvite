@@ -1,5 +1,6 @@
 import { vars } from './base';
 import AttrPrivateImpl from './attrprivate';
+import './typeutils'; // import for effect
 
 let { idCounter } = vars;
 const { evalViteDebug } = vars;
@@ -37,5 +38,9 @@ export default class SimpleAttribute<T> extends AttrPrivateImpl<T> {
     }
     this.dirty = false;
     return this.value;
+  }
+
+  public static decode(a:SimpleAttribute<any>):any {
+    return a.get();
   }
 }

@@ -28,7 +28,13 @@ export interface AttrPrivate<T> extends Attribute<T> {
 export class vars {
   static evalViteDebug = false;
 
+  static warnOnUnboundAttributes = false;
+
   static idCounter = 0;
+
+  static decodeAttribute: (a:any) => any = (a:any):any =>{
+    throw new Error("decode function not set yet, probably need to import entire package (index.ts)");
+  }
 
   // eslint-disable-next-line no-console
   static logger: (s: string) => void = console.log;
