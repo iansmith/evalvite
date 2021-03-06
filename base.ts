@@ -32,9 +32,12 @@ export class vars {
 
   static idCounter = 0;
 
-  static decodeAttribute: (a:any) => any = (a:any):any =>{
-    throw new Error("decode function not set yet, probably need to import entire package (index.ts)");
-  }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  static decodeAttribute: (a: any) => any = (a: any): any => {
+    throw new Error(
+      `trying to decode ${a}:decode function not set yet, probably need to import entire package (index.ts)`,
+    );
+  };
 
   // eslint-disable-next-line no-console
   static logger: (s: string) => void = console.log;

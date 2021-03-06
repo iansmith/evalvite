@@ -1,13 +1,12 @@
-import {Attribute, AttrPrivate} from './base';
+import { AttrPrivate, vars } from './base';
 import AttrPrivateImpl from './attrprivate';
-import {modelToAttrFields,instanceOfAttr} from "./typeutils";
-import {vars} from "./base";
+import { modelToAttrFields, instanceOfAttr } from './typeutils';
 
 export default class ArrayAttribute<T extends Record<string, unknown>> extends AttrPrivateImpl<T[]> {
   private inner: T[] = [] as T[];
 
   constructor(debugName?: string) {
-    super(debugName ? debugName : `[array attribute]`);
+    super(debugName || `[array attribute]`);
   }
 
   private static iterateAttrs(item: Record<string, unknown>, fn: (attr: AttrPrivate<unknown>) => void) {
@@ -59,7 +58,7 @@ export default class ArrayAttribute<T extends Record<string, unknown>> extends A
     this.markDirty();
   }
 
-  public index(i:number): T {
+  public index(i: number): T {
     return this.inner[i];
   }
 
@@ -67,13 +66,16 @@ export default class ArrayAttribute<T extends Record<string, unknown>> extends A
     return this.inner.length;
   }
 
-  public map(fn:(t:T)=>any):any[]{
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public map(fn: (t: T) => any): any[] {
     return this.inner.map(fn);
   }
 
-  public static decode(a:ArrayAttribute<any>):any {
-    //const arr = a.get(); // it knows it's an array here because of guard
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public static decode(a: ArrayAttribute<any>): any {
+    // const arr = a.get(); // it knows it's an array here because of guard
     if (a.inner.length > 0) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return a.inner.map((e: any) => vars.decodeAttribute(e));
     }
     return [];

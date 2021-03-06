@@ -1,14 +1,14 @@
-/* eslint-disable class-methods-use-this, new-cap, no-explicit-any */
+/* eslint-disable class-methods-use-this, new-cap, @typescript-eslint/no-explicit-any */
 
 // disabled those because if it wasn't for TS bugs (see below) we wouldn't need
 // to do this type of crap
 import SimpleAttribute from './simpleattr';
 import ComputedAttribute from './computedattr';
 import { Attribute as attr, vars } from './base';
-import {bind, instanceOfAttr, unbind} from './typeutils';
+import { bind, instanceOfAttr, unbind } from './typeutils';
 import ArrayAttribute from './arrayattr';
-import RecordAttribute from "./recordattr";
-import NaiveArrayAttribute from "./naivearrayattr";
+import RecordAttribute from './recordattr';
+import NaiveArrayAttribute from './naivearrayattr';
 
 // there is some kind of bug with TS and trying to create the little "convienence
 // grommet" around a package of code.  I tried exporting a constant
@@ -41,7 +41,7 @@ import NaiveArrayAttribute from "./naivearrayattr";
 type empty = { [key: string]: unknown };
 
 // in case you prefer the model terminology
-export interface evModel extends Record<string,undefined>{};
+export type evModel = Record<string, undefined>;
 
 class ev {
   // setDebug set to true will cause a lot of logging to the logger that starts
@@ -107,7 +107,7 @@ class ev {
   // and those fields can be attributes.  any fields that are not attributes
   // are assumed to be simple values that can be copied into the component's
   // state without worry.
-  record<T extends evModel>(value:T, debugName?: string): Attribute<T> {
+  record<T extends evModel>(value: T, debugName?: string): Attribute<T> {
     return new RecordAttribute<T>(value, debugName) as Attribute<T>;
   }
 
@@ -138,38 +138,38 @@ class ev {
 
 // this is the entry point for taking a structure (model usually) and returning
 // it sans attributes because you evaluated all of them.
-const decodeAttribute = (a:any):any => {
+const decodeAttribute = (a: any): any => {
   if (a instanceof ArrayAttribute) {
     return ArrayAttribute.decode(a);
   }
   if (a instanceof ComputedAttribute) {
-    return ComputedAttribute.decode(a)
+    return ComputedAttribute.decode(a);
   }
   if (a instanceof SimpleAttribute) {
-    return SimpleAttribute.decode(a)
+    return SimpleAttribute.decode(a);
   }
   if (a instanceof RecordAttribute) {
-    return RecordAttribute.decode(a)
+    return RecordAttribute.decode(a);
   }
   if (a instanceof NaiveArrayAttribute) {
-    return NaiveArrayAttribute.decode(a)
+    return NaiveArrayAttribute.decode(a);
   }
-  if (typeof a === "object"){
-    //recurse on fields
-    let result = {} as empty;
+  if (typeof a === 'object') {
+    // recurse on fields
+    const result = {} as empty;
     const keys = Object.keys(a) as Array<string>;
-    keys.forEach((k:string)=>{
+    keys.forEach((k: string) => {
       if (instanceOfAttr(a[k])) {
-        result[k]=decodeAttribute(a[k]);
+        result[k] = decodeAttribute(a[k]);
       } else {
-        result[k]=a[k];
+        result[k] = a[k];
       }
-    })
+    });
     return result;
   }
   // a is a simple type, not object or attr
   return a;
-}
+};
 
 vars.decodeAttribute = decodeAttribute;
 export const decode = decodeAttribute;

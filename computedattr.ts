@@ -5,7 +5,6 @@ let { idCounter } = vars;
 const { evalViteDebug } = vars;
 
 export default class ComputedAttribute<T> extends AttrPrivateImpl<T> {
-
   private in: Array<Attribute<unknown>>;
 
   private cached: T | undefined;
@@ -15,7 +14,7 @@ export default class ComputedAttribute<T> extends AttrPrivateImpl<T> {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   constructor(fn: (...a1: any[]) => T, inputs: Attribute<unknown>[], name?: string) {
-    super(name ? name : `[computed attribute ${idCounter}]`);
+    super(name || `[computed attribute ${idCounter}]`);
     idCounter += 1;
     this.in = [] as Array<Attribute<unknown>>; // for a start
     this.out = [] as Array<AttrPrivateImpl<unknown>>;
@@ -60,12 +59,12 @@ export default class ComputedAttribute<T> extends AttrPrivateImpl<T> {
       vars.logger(`EVDEBUG: ${this.debugName}: evaluating function and returning value`);
     }
     this.cached = fn.apply(this, actuals);
-    this.dirty=false;
+    this.dirty = false;
     return this.cached;
   }
 
-  public static decode(a:ComputedAttribute<any>):any {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public static decode(a: ComputedAttribute<any>): any {
     return a.get();
   }
-
 }

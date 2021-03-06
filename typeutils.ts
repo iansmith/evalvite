@@ -1,7 +1,8 @@
 import { AttrPrivate } from './base';
 
 // without disabling this, we can't get the types right on obj (unknown won't work)
-export function instanceOfAttr(obj: any): obj is AttrPrivate<unknown> {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/explicit-module-boundary-types
+export function instanceOfAttr(obj: any): obj is AttrPrivate<any> {
   if (obj === null) {
     return false;
   }
@@ -25,7 +26,6 @@ export function modelToAttrFields(inst: Record<string, unknown>): Array<string> 
   });
   return result;
 }
-
 
 export function bind<T extends Record<string, unknown>>(inst: Record<string, unknown>, c: React.Component): void {
   const fields = modelToAttrFields(inst);

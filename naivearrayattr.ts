@@ -1,13 +1,10 @@
-import {Attribute, AttrPrivate} from './base';
 import AttrPrivateImpl from './attrprivate';
-import {modelToAttrFields,instanceOfAttr} from "./typeutils";
-import {vars} from "./base";
 
 export default class NaiveArrayAttribute<T> extends AttrPrivateImpl<T[]> {
   private inner: T[] = [] as T[];
 
   constructor(debugName?: string) {
-    super(debugName ? debugName : `[naive array attribute]`);
+    super(debugName || `[naive array attribute]`);
   }
 
   public push(item: T): void {
@@ -35,11 +32,11 @@ export default class NaiveArrayAttribute<T> extends AttrPrivateImpl<T[]> {
     this.markDirty();
   }
 
-  public index(i:number): T {
+  public index(i: number): T {
     return this.inner[i];
   }
 
-  public setIndex(i:number, v: T): void {
+  public setIndex(i: number, v: T): void {
     this.inner[i] = v;
   }
 
@@ -47,11 +44,13 @@ export default class NaiveArrayAttribute<T> extends AttrPrivateImpl<T[]> {
     return this.inner.length;
   }
 
-  public map(fn:(t:T)=>any):any[]{
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public map(fn: (t: T) => any): any[] {
     return this.inner.map(fn);
   }
 
-  public static decode(a:NaiveArrayAttribute<any>):any {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public static decode(a: NaiveArrayAttribute<any>): any {
     return a.inner;
   }
 }

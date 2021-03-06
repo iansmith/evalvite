@@ -1,6 +1,6 @@
 import AttrPrivateImpl from './attrprivate';
 import { vars } from './base';
-import { modelToAttrFields, instanceOfAttr} from "./typeutils";
+import { modelToAttrFields, instanceOfAttr } from './typeutils';
 
 let { idCounter } = vars;
 const { evalViteDebug } = vars;
@@ -16,7 +16,7 @@ export default class RecordAttribute<T extends Record<string, unknown>> extends 
     if (!name) {
       idCounter += 1;
     }
-    // this is just to make the compiler hapy
+    // this is just to make the compiler happy
     this.value = value;
     // this is where do the real set
     this.set(value);
@@ -47,11 +47,12 @@ export default class RecordAttribute<T extends Record<string, unknown>> extends 
     this.markDirty();
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getField(name: string): any {
     return this.value[name];
   }
 
-  public static decode(a: RecordAttribute<any>):any {
+  public static decode(a: RecordAttribute<any>): any {
     const inner = a.value;
     const names = Object.keys(inner) as Array<string>;
     const result = {} as empty;

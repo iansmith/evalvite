@@ -4,7 +4,6 @@ import { AttrPrivate, vars } from './base';
 
 // to prevent annoying TS thing with {}
 type empty = { [key: string]: unknown };
-declare var decodeAttribute: (a:any)=> any;
 
 // do this intermediate class so we can share code with the dirty marks and the outgoing edges
 export default abstract class AttrPrivateImpl<T> implements AttrPrivate<T> {
@@ -175,7 +174,7 @@ export default abstract class AttrPrivateImpl<T> implements AttrPrivate<T> {
         const update: empty = {};
         const stateName = this.stateName[i];
         const comp = this.boundComponents[i];
-        update[stateName] = decodeAttribute(this);
+        update[stateName] = vars.decodeAttribute(this);
         comp.setState(update);
         if (vars.evalViteDebug) {
           vars.logger(
@@ -187,11 +186,9 @@ export default abstract class AttrPrivateImpl<T> implements AttrPrivate<T> {
           );
         }
       }
-    } else {
-      if (vars.warnOnUnboundAttributes){
-        // eslint-disable-next-line no-console
-        console.warn(this.debugName, ' marked component dirty, but no connected component(s)');
-      }
+    } else if (vars.warnOnUnboundAttributes) {
+      // eslint-disable-next-line no-console
+      console.warn(this.debugName, ' marked component dirty, but no connected component(s)');
     }
   }
 

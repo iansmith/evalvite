@@ -6,11 +6,10 @@ let { idCounter } = vars;
 const { evalViteDebug } = vars;
 
 export default class SimpleAttribute<T> extends AttrPrivateImpl<T> {
-
   private value: T;
 
   constructor(startingValue: T, debugName?: string) {
-    super(debugName ? debugName : `[simple attribute ${idCounter}]`);
+    super(debugName || `[simple attribute ${idCounter}]`);
     idCounter += 1;
     this.value = startingValue;
     this.markDirty(); // because we have "changed" the value
@@ -38,7 +37,8 @@ export default class SimpleAttribute<T> extends AttrPrivateImpl<T> {
     return this.value;
   }
 
-  public static decode(a:SimpleAttribute<any>):any {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public static decode(a: SimpleAttribute<any>): any {
     return a.get();
   }
 }
