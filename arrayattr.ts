@@ -1,4 +1,4 @@
-import { AttrPrivate } from './base';
+import {Attribute, AttrPrivate} from './base';
 import AttrPrivateImpl from './attrprivate';
 import {modelToAttrFields,instanceOfAttr} from "./typeutils";
 import {vars} from "./base";
@@ -7,7 +7,7 @@ export default class ArrayAttribute<T extends Record<string, unknown>> extends A
   private inner: T[] = [] as T[];
 
   constructor(debugName?: string) {
-    super(debugName || '');
+    super(debugName ? debugName : `[array attribute]`);
   }
 
   private static iterateAttrs(item: Record<string, unknown>, fn: (attr: AttrPrivate<unknown>) => void) {
@@ -57,6 +57,18 @@ export default class ArrayAttribute<T extends Record<string, unknown>> extends A
     }
     this.inner = a;
     this.markDirty();
+  }
+
+  public index(i:number): T {
+    return this.inner[i];
+  }
+
+  public length(): number {
+    return this.inner.length;
+  }
+
+  public map(fn:(t:T)=>any):any[]{
+    return this.inner.map(fn);
   }
 
   public static decode(a:ArrayAttribute<any>):any {

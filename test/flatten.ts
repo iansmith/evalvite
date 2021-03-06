@@ -42,6 +42,21 @@ describe('flattening for "state" of component', ()=> {
       })
     })
 
+    it("should output correct, but flat, value for computed attr", () => {
+      const a=ev.simple<number>(2);
+      const b=ev.simple<number>(4);
+      const c=ev.simple<number>(8);
+      const d = ev.computed<number>((a:number,b:number,c:number)=>{
+        return a*(b+c)
+      },[a,b,c])
+      type myType = {
+        [key:string]:any,
+        foo:Attribute<number>,
+      }
+      const result:Attribute<Record<string,unknown>> =ev.record<myType>({foo:d});
+      expect(result.get()).toStrictEqual({foo:24});
+    })
+
     it("should return a flattened structure for array of rec", () => {
       const arr = ev.array<childish>();
       const child0: childish = {
