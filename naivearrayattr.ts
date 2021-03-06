@@ -39,6 +39,10 @@ export default class NaiveArrayAttribute<T> extends AttrPrivateImpl<T[]> {
     return this.inner[i];
   }
 
+  public setIndex(i:number, v: T): void {
+    this.inner[i] = v;
+  }
+
   public length(): number {
     return this.inner.length;
   }

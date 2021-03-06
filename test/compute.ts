@@ -74,34 +74,60 @@ describe('computes correct, to up to date values', ()=> {
   // ~10000 marks/sec
   // ~3000 evals/sec
   it('should handle a long chain of dependencies correctly', () => {
-      const start = ev.simple<number>(0);
-      let chainSize = 1500;
-      let prev= start;
-      for (let i=0; i<chainSize; i=i+1){
-        const curr=ev.computed<number>((n:number) => n+1,
-          [prev],`chain-element-#${i}`);
-        prev=curr;
-      }
-      //prev now points to elem chainSize in the chain
-      expect(prev.get()).toStrictEqual(chainSize);
+    const start = ev.simple<number>(0);
+    let chainSize = 1500;
+    let prev = start;
+    for (let i = 0; i < chainSize; i = i + 1) {
+      const curr = ev.computed<number>((n: number) => n + 1,
+        [prev], `chain-element-#${i}`);
+      prev = curr;
+    }
+    //prev now points to elem chainSize in the chain
+    expect(prev.get()).toStrictEqual(chainSize);
 
-      let sumMark = 0;
-      let sumEval=0;
-      const iters=1;
-      for (let i=0; i<iters; i=i+1) {
-        const startMarking = getNanoSecTime();
-        start.set((i+1)*chainSize);
-        const finishMarking = getNanoSecTime();
-        sumMark = sumMark + ((finishMarking - startMarking)/1000000);
+    let sumMark = 0;
+    let sumEval = 0;
+    const iters = 1;
+    for (let i = 0; i < iters; i = i + 1) {
+      const startMarking = getNanoSecTime();
+      start.set((i + 1) * chainSize);
+      const finishMarking = getNanoSecTime();
+      sumMark = sumMark + ((finishMarking - startMarking) / 1000000);
 
-        const startEval = getNanoSecTime()
-        expect(prev.get()).toStrictEqual((i+2)*chainSize);
-        const finishEval = getNanoSecTime();
-        sumEval = sumEval + ((finishEval-startEval)/1000000);
-      }
+      const startEval = getNanoSecTime()
+      expect(prev.get()).toStrictEqual((i + 2) * chainSize);
+      const finishEval = getNanoSecTime();
+      sumEval = sumEval + ((finishEval - startEval) / 1000000);
+    }
 
     //console.log("marking sum ",chainSize*iters/sumMark," marks/sec");
     //console.log("eval sum ", chainSize*iters/sumEval, " evals/sec");
+
+  });
+  it('should correctly update length in naive array case', () => {
+    const arr = ev.naivearray<number>()
+    const lengthAttr = ev.computed<number>( (naiveContent: number[])=>{
+      return naiveContent.length;
+    },[arr]);
+
+    expect(lengthAttr.get()).toStrictEqual(0);
+
+    arr.push(7);
+    arr.push(8);
+    arr.push(42);
+
+    expect(lengthAttr.get()).toStrictEqual(3);
+
+    arr.setIndex(2,0); // no effect on derived attributes!
+    expect(lengthAttr.get()).toStrictEqual(3);
+
+    const v=arr.pop();
+    expect(v).toStrictEqual(0);  // set above changed 42 to 0
+    expect(lengthAttr.get()).toEqual(2);
+
+    arr.pop();
+    arr.pop();
+    expect(lengthAttr.get()).toStrictEqual(0);
 
   });
 });

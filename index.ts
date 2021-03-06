@@ -116,8 +116,8 @@ class ev {
   // updates when the _number of values_ in the array changes.  This can
   // be useful if you are computing something based on the size of the array,
   // especially something like "is it empty?"
-  naivearray<T>(debugName?: string): Attribute<T[]> {
-    return new NaiveArrayAttribute<T>(debugName) as Attribute<T[]>;
+  naivearray<T>(debugName?: string): NaiveArrayAttribute<T> {
+    return new NaiveArrayAttribute<T>(debugName);
   }
 
   // bindModelToComponent should be called in the component's constructor.
