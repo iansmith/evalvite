@@ -67,4 +67,9 @@ export default class ComputedAttribute<T> extends AttrPrivateImpl<T> {
   public static decode(a: ComputedAttribute<any>): any {
     return a.get();
   }
+
+  public wrappedTypename(): string {
+    return `<${typeof this.cached}>`;
+  }
+
 }

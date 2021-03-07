@@ -1,0 +1,1 @@
+This is the configuration directory for the examples app.

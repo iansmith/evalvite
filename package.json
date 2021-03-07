@@ -1,6 +1,6 @@
 {
   "name": "evalvite",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "## Introduction Redux is too big and vastly too complex for what it does.   We need something _much_ simpler, and _much_ smaller. Thus, evalvite.  It's designed for typescript + React and assumes that you are using class-based React components, not FCs.",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",

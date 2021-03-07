@@ -41,4 +41,9 @@ export default class SimpleAttribute<T> extends AttrPrivateImpl<T> {
   public static decode(a: SimpleAttribute<any>): any {
     return a.get();
   }
+
+  public wrappedTypename(): string {
+    return `<${typeof this.value}>`;
+  }
+
 }

@@ -53,4 +53,9 @@ export default class NaiveArrayAttribute<T> extends AttrPrivateImpl<T[]> {
   public static decode(a: NaiveArrayAttribute<any>): any {
     return a.inner;
   }
+
+  public wrappedTypename(): string {
+    return typeof this.inner;
+  }
+
 }

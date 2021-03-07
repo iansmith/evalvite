@@ -62,4 +62,16 @@ export default class RecordAttribute<T extends Record<string, unknown>> extends 
     });
     return result;
   }
+
+  public wrappedTypename(): string {
+    const inner = this.value;
+    const names = Object.keys(inner) as Array<string>;
+    const result = {} as empty;
+    names.forEach((k: string) => {
+      // eslint-disable-next-line  @typescript-eslint/no-unused-vars
+      result[k] = vars.atttributeType(inner[k]);
+    });
+    return JSON.stringify(result);
+  }
+
 }

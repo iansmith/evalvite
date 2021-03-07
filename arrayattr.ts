@@ -66,6 +66,10 @@ export default class ArrayAttribute<T extends Record<string, unknown>> extends A
     return this.inner.length;
   }
 
+  public wrappedTypename(): string {
+    return typeof this.inner;
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public map(fn: (t: T) => any): any[] {
     return this.inner.map(fn);
@@ -80,4 +84,5 @@ export default class ArrayAttribute<T extends Record<string, unknown>> extends A
     }
     return [];
   }
+
 }

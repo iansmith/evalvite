@@ -1,7 +1,7 @@
 
 #
 # this file should be _SOURCED_ into your shell, not executed. it does not
-# a she-bang (#!) for a reason.
+# have a she-bang (#!) for a reason.
 #
 # you will need to go into the `tools` directory and adjust the symlinks to
 # select the version of node, npm, and other tools you want. the `tools`

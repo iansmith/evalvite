@@ -4,13 +4,13 @@
 // to do this type of crap
 import SimpleAttribute from './simpleattr';
 import ComputedAttribute from './computedattr';
-import { Attribute as attr, vars } from './base';
+import {Attribute as attr, vars} from './base';
 import { bind, instanceOfAttr, unbind } from './typeutils';
 import ArrayAttribute from './arrayattr';
 import RecordAttribute from './recordattr';
 import NaiveArrayAttribute from './naivearrayattr';
 
-// there is some kind of bug with TS and trying to create the little "convienence
+// there is some kind of bug with TS and trying to create the little "convenience
 // grommet" around a package of code.  I tried exporting a constant
 //
 // const ev = {
@@ -99,6 +99,7 @@ class ev {
   // Every element of the array has to be Record and this Record (usually a model)
   // may include any number of attributes, changes to any of which will
   // cause updates to dependent attributes.
+  // all your attribute are belong to us.
   array<T extends evModel>(debugName?: string): ArrayAttribute<T> {
     return new ArrayAttribute<T>(debugName);
   }
@@ -158,6 +159,7 @@ const decodeAttribute = (a: any): any => {
     // recurse on fields
     const result = {} as empty;
     const keys = Object.keys(a) as Array<string>;
+    console.log("found object during decode, hitting keys: ",keys);
     keys.forEach((k: string) => {
       if (instanceOfAttr(a[k])) {
         result[k] = decodeAttribute(a[k]);
@@ -165,14 +167,62 @@ const decodeAttribute = (a: any): any => {
         result[k] = a[k];
       }
     });
+    console.log("found object during decode,result: ",result);
     return result;
   }
   // a is a simple type, not object or attr
   return a;
 };
 
+const enclosedType = (a:any):string => {
+  if (instanceOfAttr(a)){
+    return `<${decodeTypename(a)}>`
+  }
+  return `<${typeof a}>`
+};
+
+const decodeTypename = (a: any): any => {
+  if (a instanceof ArrayAttribute) {
+    return `ArrayAttribute${a.wrappedTypename()}`
+  }
+  if (a instanceof ComputedAttribute) {
+    return `Computed Attribute${a.wrappedTypename()}`
+  }
+  if (a instanceof SimpleAttribute) {
+    return `SimpleAttribute${a.wrappedTypename()}`;
+  }
+  if (a instanceof RecordAttribute) {
+    return `RecordAttribute${a.wrappedTypename()}`;
+  }
+  if (a instanceof NaiveArrayAttribute) {
+    return `NaiveArrayAttribute${a.wrappedTypename()}`;
+  }
+  if (typeof a === 'object') {
+    // recurse on fields
+    const result = {} as empty;
+    const keys = Object.keys(a) as Array<string>;
+    console.log("found object during decodeTypename, hitting keys: ",keys);
+    keys.forEach((k: string) => {
+      if (instanceOfAttr(a[k])) {
+        result[k] = decodeTypename(a[k]);
+      } else {
+        result[k] = typeof a[k];
+      }
+    });
+    console.log("found object during decode,result: ",result);
+    return result;
+  }
+  // a is a simple type, not object or attr
+  return typeof a;
+};
+
 vars.decodeAttribute = decodeAttribute;
 export const decode = decodeAttribute;
+
+vars.atttributeType = decodeTypename;
+export const attributeTypeName = decodeTypename;
+
 export type Attribute<T> = attr<T>;
+
 const evinstance = new ev();
 export default evinstance;

@@ -4,7 +4,7 @@ import React from 'react';
 // allow the constraint system to perform updates as needed.
 export interface Attribute<T> {
   // debugName will be displayed in log messages when you turn on debug mode.
-  debugName: string;
+  debugName(): string;
   get(): T;
   set(v: T): void;
   // component connects a react component to this attribute.  When the attribute
@@ -22,6 +22,11 @@ export interface AttrPrivate<T> extends Attribute<T> {
   markDirty(): void;
   addOutgoing(target: AttrPrivate<unknown>): void;
   removeOutgoing(target: AttrPrivate<unknown>): void;
+
+  // just for making debugging output nice
+  attributeTypename(): string;
+  // just for making debugging output nice
+  wrappedTypename(): string;
 }
 
 // vars is the utility variables of
@@ -36,6 +41,13 @@ export class vars {
   static decodeAttribute: (a: any) => any = (a: any): any => {
     throw new Error(
       `trying to decode ${a}:decode function not set yet, probably need to import entire package (index.ts)`,
+    );
+  };
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  static atttributeType(a:any):any {
+    throw new Error(
+      `trying to get type for ${a}:decode function not set yet, probably need to import entire package (index.ts)`,
     );
   };
 
