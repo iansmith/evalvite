@@ -21,14 +21,15 @@ interface numberListState {
 }
 
 export default class NumberList extends React.Component<numberListProps,numberListState>{
+  // when you are NOT in render() and almost always when handling input,
+  // you want to manipulate ATTRIBUTES not their values. pull attributes from
+  // this.props.model.<BLAHBLAH> and pull values from this.state.<BLAHBLAH>
   click = ()=>{
-    // kinda tricky: you don't want the flat version, you want the actual attribute
-    const content = this.props.model.getField('content');
+    const {content} = this.props.model;
     ev.setDebug(true);
     ev.setWarnOnUnboundAttributes(true);
     // add another
     const newElement = {value: ev.simple<number>(0)}
-    console.log("",newElement);
     content.push(newElement);
   }
   state: numberListState;

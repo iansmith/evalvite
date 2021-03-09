@@ -1,6 +1,5 @@
 import ev, {Attribute} from 'evalvite';
 import ArrayAttribute from 'evalvite/lib/arrayattr';
-import RecordAttribute from "evalvite/lib/recordattr";
 
 //
 // note: this pattern of models is exactly identical to the "FooListItem" and
@@ -20,7 +19,7 @@ export interface NumberStateItem {
 }
 
 // model for the whole example
-class NumberModel_ {
+export default class NumberModel {
   [key:string]:any;
 
   // array content has to be a record, can't be just ArrayAttribute<number>
@@ -63,11 +62,4 @@ class NumberModel_ {
       return values.map((nm:NumberStateItem)=>nm.value).reduce((prev:number, curr:number)=>prev>curr?prev:curr,0)},
         [this.content],'max');
     }
-}
-
-export default class NumberModel extends RecordAttribute<NumberModel_> {
-  [key:string]:any;
-  constructor() {
-    super(new NumberModel_());
-  }
 }

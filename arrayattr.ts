@@ -25,7 +25,6 @@ export default class ArrayAttribute<T extends Record<string, unknown>> extends A
     }
     this.inner.push(item);
     const keysOfAttrs = modelToAttrFields(item);
-    vars.logger(`push called: ${keysOfAttrs}`);
     keysOfAttrs.forEach((k: string) => {
       const value = item[k];
       if (instanceOfAttr(value)) {

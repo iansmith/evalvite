@@ -7,7 +7,6 @@ import ComputedAttribute from './computedattr';
 import {Attribute as attr, vars} from './base';
 import { bind, instanceOfAttr, unbind } from './typeutils';
 import ArrayAttribute from './arrayattr';
-import RecordAttribute from './recordattr';
 import NaiveArrayAttribute from './naivearrayattr';
 
 // there is some kind of bug with TS and trying to create the little "convenience
@@ -78,6 +77,13 @@ class ev {
     return new SimpleAttribute<T>(t, debug);
   }
 
+  // take a structure (object) that has attributes and decode it (flatten) to
+  // just values of the attributes... this is the equivalent of "get" on attribute
+  // and can be used interchangeably.
+  decode(o:object): object {
+    return decodeAttribute(o);
+  }
+
   // computed attributes are attributes whose value is computed from one or more
   // other attributes.  The function given here as the "computation" must be a pure
   // function of its inputs.  It is not recommended that you even use constants in
@@ -102,14 +108,6 @@ class ev {
   // all your attribute are belong to us.
   array<T extends evModel>(debugName?: string): ArrayAttribute<T> {
     return new ArrayAttribute<T>(debugName);
-  }
-
-  // record attribute is usually a model.  it can have any number of fields
-  // and those fields can be attributes.  any fields that are not attributes
-  // are assumed to be simple values that can be copied into the component's
-  // state without worry.
-  record<T extends evModel>(value: T, debugName?: string): Attribute<T> {
-    return new RecordAttribute<T>(value, debugName) as Attribute<T>;
   }
 
   // naivearray is dumber than array.  it assumes that the parameter type T
@@ -137,6 +135,8 @@ class ev {
   }
 }
 
+let dprint = '';
+
 // this is the entry point for taking a structure (model usually) and returning
 // it sans attributes because you evaluated all of them.
 const decodeAttribute = (a: any): any => {
@@ -147,10 +147,10 @@ const decodeAttribute = (a: any): any => {
     return ComputedAttribute.decode(a);
   }
   if (a instanceof SimpleAttribute) {
+    if (dprint){
+      console.log(dprint, "-> ", a.get())
+    }
     return SimpleAttribute.decode(a);
-  }
-  if (a instanceof RecordAttribute) {
-    return RecordAttribute.decode(a);
   }
   if (a instanceof NaiveArrayAttribute) {
     return NaiveArrayAttribute.decode(a);
@@ -160,10 +160,10 @@ const decodeAttribute = (a: any): any => {
     const result = {} as empty;
     const keys = Object.keys(a) as Array<string>;
     keys.forEach((k: string) => {
-      if (instanceOfAttr(a[k])) {
+      if (instanceOfAttr(a[k]) || (typeof a[k]==='object' && Object.prototype.toString.call(a[k]) !== '[object Array]')) {
         result[k] = decodeAttribute(a[k]);
       } else {
-        result[k] = a[k];
+        result[k]=a[k];
       }
     });
     return result;
@@ -189,9 +189,6 @@ const decodeTypename = (a: any): any => {
   if (a instanceof SimpleAttribute) {
     return `SimpleAttribute${a.wrappedTypename()}`;
   }
-  if (a instanceof RecordAttribute) {
-    return `RecordAttribute${a.wrappedTypename()}`;
-  }
   if (a instanceof NaiveArrayAttribute) {
     return `NaiveArrayAttribute<${a.wrappedTypename()}`;
   }
@@ -201,13 +198,12 @@ const decodeTypename = (a: any): any => {
     const keys = Object.keys(a) as Array<string>;
     console.log("found object during decodeTypename, hitting keys: ",keys);
     keys.forEach((k: string) => {
-      if (instanceOfAttr(a[k])) {
+      if (instanceOfAttr(a[k]) || (typeof a[k]==='object' && Object.prototype.toString.call(a[k]) !== '[object Array]')) {
         result[k] = decodeTypename(a[k]);
       } else {
         result[k] = typeof a[k];
       }
     });
-    console.log("found object during decode,result: ",result);
     return result;
   }
   // a is a simple type, not object or attr

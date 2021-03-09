@@ -1,17 +1,18 @@
 import {describe, expect, it} from "@jest/globals";
 import ev, {Attribute, decode} from '../index';
+import ignore from "ignore";
 
 interface childish {
-  [key:string]:any;
+  [key:string]:any;  // required as it allows us to treat this model as a dictionary
   plain: number;
   simple: Attribute<number>
 }
 
 interface rootish  {
-  [key:string]:any;
+  [key:string]:any; // required as it allows us to treat this model as a dictionary
   notattr : string;
   simple: Attribute<string>;
-  child: Attribute<childish>;
+  child: childish;
 }
 
 describe('flattening for "state" of component', ()=> {
@@ -20,18 +21,13 @@ describe('flattening for "state" of component', ()=> {
         plain: 42,
         simple: ev.simple<number>(43, 'kid'),
       }
-      const wrappedKid: Attribute<childish> =
-        ev.record<childish>(kid, 'wrapped kid') as Attribute<childish>;
-
       const root: rootish = {
         notattr: 'loser',
         simple: ev.simple<string>('baby', 'rootish'),
-        child: wrappedKid,
+        child: kid,
       }
-      const wrappedRoot: Attribute<rootish> =
-        ev.record<rootish>(root, 'wrapped root') as Attribute<rootish>;
 
-      const result = wrappedRoot.get()
+      const result = ev.decode(root);
       expect(result).toStrictEqual({
         notattr: 'loser',
         simple: 'baby',
@@ -50,11 +46,10 @@ describe('flattening for "state" of component', ()=> {
         return a*(b+c)
       },[a,b,c])
       type myType = {
-        [key:string]:any,
         foo:Attribute<number>,
       }
-      const result:Attribute<Record<string,unknown>> =ev.record<myType>({foo:d});
-      expect(result.get()).toStrictEqual({foo:24});
+      const result:myType ={foo:d};
+      expect(ev.decode(result)).toStrictEqual({foo:24});
     })
 
     it("should return a flattened structure for array of rec", () => {
