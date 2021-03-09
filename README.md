@@ -348,7 +348,15 @@ probably fix, but I could not.
 * `typescript type system` Can we statically check at compile time that the parameters
   to a function used in a computed attribute are correct?  Since we know the types,
   it seems like this should be possible.
-  
+
+* `typescript type system` It is tedious to have to add this _index signature_ line to every model,
+  can it be removed by changing the types somehow?.
+```typescript
+interface someModel{
+  [key:string]:any;
+}
+```
+
 * `react` At the moment evalvite only works with class-based components.  I am
   just not sufficiently well-versed in how functional components--and their
   brothers, hooks--work to make evalvite work properly with such components. If

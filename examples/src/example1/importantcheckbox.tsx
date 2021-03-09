@@ -31,7 +31,6 @@ export default class ImportantCheckBox extends React.Component<localProps, local
       content = <span className='font-weight-bold'>{this.msg}</span>
     }
     let box = <input type='checkbox' onChange={this.change}/>;
-    console.log("got content and box:",important);
     return (
       <Row>
         <Col className='col-1 text-right'>{box}</Col>

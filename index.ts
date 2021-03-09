@@ -159,7 +159,6 @@ const decodeAttribute = (a: any): any => {
     // recurse on fields
     const result = {} as empty;
     const keys = Object.keys(a) as Array<string>;
-    console.log("found object during decode, hitting keys: ",keys);
     keys.forEach((k: string) => {
       if (instanceOfAttr(a[k])) {
         result[k] = decodeAttribute(a[k]);
@@ -167,7 +166,6 @@ const decodeAttribute = (a: any): any => {
         result[k] = a[k];
       }
     });
-    console.log("found object during decode,result: ",result);
     return result;
   }
   // a is a simple type, not object or attr
@@ -183,7 +181,7 @@ const enclosedType = (a:any):string => {
 
 const decodeTypename = (a: any): any => {
   if (a instanceof ArrayAttribute) {
-    return `ArrayAttribute${a.wrappedTypename()}`
+    return `ArrayAttribute<${a.wrappedTypename()}>`
   }
   if (a instanceof ComputedAttribute) {
     return `Computed Attribute${a.wrappedTypename()}`
@@ -195,7 +193,7 @@ const decodeTypename = (a: any): any => {
     return `RecordAttribute${a.wrappedTypename()}`;
   }
   if (a instanceof NaiveArrayAttribute) {
-    return `NaiveArrayAttribute${a.wrappedTypename()}`;
+    return `NaiveArrayAttribute<${a.wrappedTypename()}`;
   }
   if (typeof a === 'object') {
     // recurse on fields

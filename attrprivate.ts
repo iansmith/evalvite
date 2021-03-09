@@ -67,7 +67,6 @@ export default abstract class AttrPrivateImpl<T> implements AttrPrivate<T> {
     this.markDirty();
     // we have to make sure that the component gets update on the initial set
     this.updateComponents();
-    // c.forceUpdate(()=>{console.log("callback for update happened")});
   }
 
   public removeComponent(c: React.Component, stateName: string): void {
@@ -180,13 +179,11 @@ export default abstract class AttrPrivateImpl<T> implements AttrPrivate<T> {
         vars.logger(`EVDEBUG: ${this.debugName()}: setting state in all components[${this.boundComponents.length}]`);
       }
       const myValue = this.get();
-      vars.logger(`about drop in setting loop`);
       for (let i = 0; i < this.boundComponents.length; i += 1) {
         const stateName = this.stateName[i];
         const comp = this.boundComponents[i];
         const update = {} as empty;
         update[stateName]= myValue;
-        vars.logger(`about to call setState`);
         comp.setState(update);
         if (vars.evalViteDebug) {
           vars.logger(
@@ -195,7 +192,7 @@ export default abstract class AttrPrivateImpl<T> implements AttrPrivate<T> {
             }: bound component state updated to: ${JSON.stringify(update)}`);
         }
       }
-    } else if (vars.warnOnUnboundAttributes) {
+    } else if (vars.warnOnUnboundAttributes && this.out.length===0) {
       // eslint-disable-next-line no-console
       console.warn(this.debugName(), ' marked component dirty, but no connected component(s)');
     }

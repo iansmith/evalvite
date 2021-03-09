@@ -5,6 +5,8 @@ import ev from 'evalvite';
 import ImportantCheckBox from "./example1/importantcheckbox";
 import FancyNames from "./example2/fancynames";
 import NameModel from './example2/models';
+import NumberModel from './example3/models';
+import NumberList from './example3/numberlist';
 
 type myProps = {};
 type myState = {};
@@ -47,6 +49,12 @@ class App extends React.Component<myProps,myState> {
           <FancyNames model={nameModel2}/>
         </Col>
       </Row>
+      <Row>
+        <Col lg={3}>
+          <h3>Example 3</h3>
+        </Col>
+      </Row>
+      <NumberList model={new NumberModel()}/>
     </Container>
     );
   }

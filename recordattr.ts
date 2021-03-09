@@ -41,6 +41,7 @@ export default class RecordAttribute<T extends Record<string, unknown>> extends 
       const obj = t[k];
       if (instanceOfAttr(obj)) {
         // just to make the types work
+        vars.logger(`${this.debugName()} added edge from field ${k} to this`)
         obj.addOutgoing(this);
       }
     });
