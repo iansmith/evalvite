@@ -29,6 +29,9 @@ export function modelToAttrFields(inst: Record<string, unknown>): Array<string> 
 
 export function bind<T extends Record<string, unknown>>(inst: Record<string, unknown>, c: React.Component): void {
   const fields = modelToAttrFields(inst);
+  fields.forEach((k) => {
+    (inst[k] as AttrPrivate<T>).addComponent(c, k);
+  });
 }
 
 export function unbind<T>(inst: Record<string, unknown>, c: React.Component): void {

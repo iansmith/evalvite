@@ -8,6 +8,7 @@ import {Attribute as attr, vars} from './base';
 import { bind, instanceOfAttr, unbind } from './typeutils';
 import ArrayAttribute from './arrayattr';
 import NaiveArrayAttribute from './naivearrayattr';
+import AttrPrivateImpl from "./attrprivate";
 
 // there is some kind of bug with TS and trying to create the little "convenience
 // grommet" around a package of code.  I tried exporting a constant
@@ -137,6 +138,7 @@ class ev {
 
 let dprint = '';
 
+
 // this is the entry point for taking a structure (model usually) and returning
 // it sans attributes because you evaluated all of them.
 const decodeAttribute = (a: any): any => {
@@ -190,16 +192,19 @@ const decodeTypename = (a: any): any => {
     return `SimpleAttribute${a.wrappedTypename()}`;
   }
   if (a instanceof NaiveArrayAttribute) {
-    return `NaiveArrayAttribute<${a.wrappedTypename()}`;
+    return `NaiveArrayAttribute<${a.wrappedTypename()}>`;
   }
   if (typeof a === 'object') {
     // recurse on fields
     const result = {} as empty;
     const keys = Object.keys(a) as Array<string>;
-    console.log("found object during decodeTypename, hitting keys: ",keys);
     keys.forEach((k: string) => {
       if (instanceOfAttr(a[k]) || (typeof a[k]==='object' && Object.prototype.toString.call(a[k]) !== '[object Array]')) {
-        result[k] = decodeTypename(a[k]);
+        if (instanceOfAttr(a[k])) {
+          result[k] = decodeTypename(a[k]);
+        } else {
+          result[k] = '{' + decodeTypename(a[k]) + '}';
+        }
       } else {
         result[k] = typeof a[k];
       }

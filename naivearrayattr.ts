@@ -29,7 +29,7 @@ export default class NaiveArrayAttribute<T> extends AttrPrivateImpl<T[]> {
   public set(a: T[]): void {
     // not clear the use of "set" is a good idea
     this.inner = a;
-    this.markDirty();
+    this.markDirtyAndUpdate();
   }
 
   public index(i: number): T {

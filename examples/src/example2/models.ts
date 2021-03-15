@@ -3,8 +3,8 @@ import ev from 'evalvite';
 
 class NameModel {
   [key:string]:any;
-  firstName : Attribute<string> = ev.simple<string>('');
-  lastName: Attribute<string>= ev.simple<string>('');
+  firstName : Attribute<string> = ev.simple<string>('','firstName');
+  lastName: Attribute<string>= ev.simple<string>('','lastName');
   frenchLastName: Attribute<string>;
   age: number = 0; // see exercise for the reader in README.md
   // these are the initial values for the instance variables

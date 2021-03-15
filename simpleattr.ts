@@ -26,7 +26,7 @@ export default class SimpleAttribute<T> extends AttrPrivateImpl<T> {
       vars.logger(`EVDEBUG: ${this.debugName}: set to ${newValue}`);
     }
     this.value = newValue;
-    this.markDirty();
+    this.markDirtyAndUpdate();
   }
 
   public get(): T {

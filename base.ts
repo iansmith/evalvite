@@ -14,14 +14,26 @@ export interface Attribute<T> {
   removeComponent(c: React.Component, stateName: string): void;
 }
 
+export enum TopoMark {
+  None,
+  Temporary,
+  Permanent,
+}
+
 // AttrPrivate is an interface that should not be needed by evalvite
 // users, it is only useful in the implementation.  All attributes have
 // these methods to support implementing the constraint graph and maintaining
 // dirty bits.
 export interface AttrPrivate<T> extends Attribute<T> {
   markDirty(): void;
+  // this should be used when you get a call to set a value
+  markDirtyAndUpdate(): void;
+  updateComponents():void;
   addOutgoing(target: AttrPrivate<unknown>): void;
   removeOutgoing(target: AttrPrivate<unknown>): void;
+  getOutgoing(): Array<AttrPrivate<unknown>>
+  mark(): TopoMark;
+  setMark(t:TopoMark):void;
 
   // just for making debugging output nice
   attributeTypename(): string;
@@ -36,6 +48,8 @@ export class vars {
   static warnOnUnboundAttributes = false;
 
   static idCounter = 0;
+
+  static abortOnCycle = true;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static decodeAttribute: (a: any) => any = (a: any): any => {

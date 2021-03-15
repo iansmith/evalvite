@@ -20,21 +20,15 @@ export default class ArrayAttribute<T extends Record<string, unknown>> extends A
   }
 
   public push(item: T): void {
-    if (vars.evalViteDebug){
-      vars.logger(`push() called on array attr`)
-    }
     this.inner.push(item);
     const keysOfAttrs = modelToAttrFields(item);
     keysOfAttrs.forEach((k: string) => {
       const value = item[k];
       if (instanceOfAttr(value)) {
-        if (vars.evalViteDebug){
-          vars.logger(`${value} is field ${k} and adding outgoing from it to ${this.debugName}`)
-        }
         value.addOutgoing(this);
       }
     });
-    this.markDirty();
+    this.markDirtyAndUpdate();
   }
 
   public pop(): T {
@@ -46,7 +40,7 @@ export default class ArrayAttribute<T extends Record<string, unknown>> extends A
       attr.removeOutgoing(this);
     });
     // do this AFTER we removed the necessary edges
-    this.markDirty();
+    this.markDirtyAndUpdate();
     return value;
   }
 
@@ -61,7 +55,7 @@ export default class ArrayAttribute<T extends Record<string, unknown>> extends A
       this.pop(); // remove all the links to us
     }
     this.inner = a;
-    this.markDirty();
+    this.markDirtyAndUpdate();
   }
 
   public index(i: number): T {

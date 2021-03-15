@@ -1,10 +1,10 @@
 import {Col, Row} from "react-bootstrap";
 import React from 'react';
-import ev from 'evalvite';
+import ev, {Attribute} from 'evalvite';
 
-import NumberModel, {NumberModelItem} from "./models";
+import NumberModel, {NumberModelItem, ResultModel} from "./models";
 import NumberListItem from "./numberlistitem";
-import {instanceOfAttr} from "evalvite/lib/typeutils";
+import Result from "./result";
 
 interface numberListProps {
   model: NumberModel,
@@ -26,10 +26,8 @@ export default class NumberList extends React.Component<numberListProps,numberLi
   // this.props.model.<BLAHBLAH> and pull values from this.state.<BLAHBLAH>
   click = ()=>{
     const {content} = this.props.model;
-    ev.setDebug(true);
-    ev.setWarnOnUnboundAttributes(true);
     // add another
-    const newElement = {value: ev.simple<number>(0)}
+    const newElement = {value: ev.simple<number>(0,"newcontent")}
     content.push(newElement);
   }
   state: numberListState;
@@ -40,12 +38,19 @@ export default class NumberList extends React.Component<numberListProps,numberLi
   componentDidMount() {
     ev.bindModelToComponent(this.props.model,this);
   }
+  newResultModel(a:Attribute<number>): ResultModel {
+    return {
+      value:a,
+    }
+  }
 
-  render(){
-    const {content,isDefined,number,max,sum,average} = this.state;
+  render() {
+    const {isDefined} = this.state;
+    const {content, number, sum, average, max} = this.props.model;
     let results;
 
-    if (!isDefined){
+    console.log("render of ", this.state);
+    if (!isDefined) {
       results =
         <div>
           <span>No number cells</span>
@@ -53,10 +58,11 @@ export default class NumberList extends React.Component<numberListProps,numberLi
     } else {
       results =
         <div>
-          <span>Entries: {number}</span><br/>
-          <span>Sum: {sum}</span><br/>
-          <span>Average {average}</span><br/>
-          <span>Max {max}</span><br/>
+          {/* pass down MODELS not values */}
+          <Result label='Entries' model={this.newResultModel(number)}/> <br/>
+          <Result label='Sum' model={this.newResultModel(sum)}/> <br/>
+          <Result label='Average' model={this.newResultModel(average)}/> <br/>
+          <Result label='Max' model={this.newResultModel(max)}/> <br/>
         </div>
     }
     return (
@@ -71,9 +77,13 @@ export default class NumberList extends React.Component<numberListProps,numberLi
         </Row>
         {/* iterate over the MODEL contents because we need to pass a MODEL down as prop */}
         {
-          content.forEach((m: NumberModelItem) => (
-            <NumberListItem model={m}/>
-          ))
+          content.map((m: NumberModelItem) => {
+              console.log("number iter ", m.value, " and type ",typeof m.value);
+              return (
+                <NumberListItem model={m}/>
+              );
+            }
+          )
         }
       </div>
     );

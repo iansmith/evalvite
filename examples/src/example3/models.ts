@@ -18,6 +18,12 @@ export interface NumberStateItem {
   value: number;
 }
 
+// result is a display for a computed attribute
+export interface ResultModel {
+  [key:string]:any;
+  value: Attribute<number>;
+}
+
 // model for the whole example
 export default class NumberModel {
   [key:string]:any;
@@ -41,7 +47,9 @@ export default class NumberModel {
 
     // is it zero length?
     this.isDefined=ev.computed<boolean>(
-      (n:number)=>n>0, [this.number], 'isDefined');
+      (n:number):boolean=>{
+        return n>0;
+        }, [this.number],'isDefined');
 
     // sum
     this.sum=ev.computed<number>(
@@ -54,8 +62,8 @@ export default class NumberModel {
           return total / howMany
         }
         return 0; // won't matter, user will not see this
-      }, [this.sum, this.number, this.isDefined]
-    );
+      }, [this.sum, this.number, this.isDefined],
+    'average');
 
     // max
     this.max=ev.computed<number>((values:NumberStateItem[]): number => {

@@ -1,11 +1,11 @@
 import React from 'react';
 
-import { AttrPrivate, vars } from './base';
-import {instanceOfAttr} from "./typeutils";
+import { AttrPrivate, vars, TopoMark} from './base';
 
 // to allow {} to work sensibly
 // eslint-disable-next-line no-explicit-any
 type empty = {[key:string]: unknown};
+
 
 // do this intermediate class so we can share code with the dirty marks and the outgoing edges
 export default abstract class AttrPrivateImpl<T> implements AttrPrivate<T> {
@@ -19,6 +19,8 @@ export default abstract class AttrPrivateImpl<T> implements AttrPrivate<T> {
   protected initialized = false;
 
   protected boundComponents = new Array<React.Component>();
+
+  protected tmark = TopoMark.None;
 
   protected dName : string;
   protected constructor(n: string) {
@@ -37,6 +39,14 @@ export default abstract class AttrPrivateImpl<T> implements AttrPrivate<T> {
       }
     }
     return -1;
+  }
+
+  public  mark(): TopoMark {
+    return this.tmark
+  }
+
+  public setMark(t: TopoMark):void {
+    this.tmark =t;
   }
 
   public debugName(): string{
@@ -122,6 +132,10 @@ export default abstract class AttrPrivateImpl<T> implements AttrPrivate<T> {
     this.out.push(target);
   }
 
+  public getOutgoing():Array<AttrPrivate<any>>{
+    return this.out
+  }
+
   public removeOutgoing(target: AttrPrivate<unknown>): void {
     if (vars.evalViteDebug) {
       vars.logger(`EVDEBUG: ${this.debugName()}: removing edge -> ${target.debugName}`);
@@ -151,13 +165,12 @@ export default abstract class AttrPrivateImpl<T> implements AttrPrivate<T> {
   }
 
   public markDirty(): void {
-    if (this.dirty && this.initialized) {
+    if (this.dirty) {
       if (vars.evalViteDebug) {
         vars.logger(`EVDEBUG: ${this.debugName()}: no reason to mark dirty, already dirty`);
       }
       return;
     }
-    this.initialized = true;
     if (vars.evalViteDebug) {
       vars.logger(
         `EVDEBUG: ${this.debugName()}: marking dirty recursive start [${this.out.length} edges] ------------- `,
@@ -170,7 +183,14 @@ export default abstract class AttrPrivateImpl<T> implements AttrPrivate<T> {
       vars.logger(`EVDEBUG: ${this.debugName()}: ------------- marking dirty recursive end`);
     }
     this.dirty = true;
-    this.updateComponents();
+  }
+
+  public markDirtyAndUpdate() {
+    this.markDirty();
+    const result=AttrPrivateImpl.topoSort(this);
+    result.forEach((a:AttrPrivate<unknown>)=>{
+      a.updateComponents();
+    })
   }
 
   public updateComponents(): void {
@@ -184,13 +204,31 @@ export default abstract class AttrPrivateImpl<T> implements AttrPrivate<T> {
         const comp = this.boundComponents[i];
         const update = {} as empty;
         update[stateName]= myValue;
-        comp.setState(update);
-        if (vars.evalViteDebug) {
-          vars.logger(
-            `EVDEBUG: ${
-              this.debugName()
-            }: bound component state updated to: ${JSON.stringify(update)}`);
-        }
+        comp.setState((prev:any) => {
+          if (prev){
+            if (prev[stateName]===myValue) {
+              return prev;
+            }
+            prev[stateName]=myValue;
+            return prev;
+          }
+          if (vars.evalViteDebug){
+            vars.logger(`EVDEBUG: ${this.debugName()}: updating component state (${JSON.stringify(prev)}) with: ${JSON.stringify(update)}`)
+            if (prev && Object.keys(prev).indexOf(stateName)===-1) {
+              console.warn(`state does not contain key ${stateName} and this is likely a programming error`)
+            }
+          }
+          if (!prev){
+            prev = {stateName:myValue};
+          }
+          return prev;
+        });
+        // if (vars.evalViteDebug) {
+        //   vars.logger(
+        //     `EVDEBUG: ${
+        //       this.debugName()
+        //     }: bound component state updated to: ${JSON.stringify(update)}`);
+        // }
       }
     } else if (vars.warnOnUnboundAttributes && this.out.length===0) {
       // eslint-disable-next-line no-console
@@ -203,6 +241,48 @@ export default abstract class AttrPrivateImpl<T> implements AttrPrivate<T> {
     return vars.atttributeType(this);
   }
 
+  // topological sort credited to Tarjan, 1976
+  public static topoSort = (start:AttrPrivate<any>):AttrPrivate<unknown>[] => {
+    const topoResult = [] as AttrPrivate<unknown>[];
+    let temps = [] as AttrPrivate<unknown>[];
+
+    const visit = (n:AttrPrivate<unknown>)=> {
+      if (n.mark() === TopoMark.Permanent) {
+        return;
+      }
+      if (n.mark() === TopoMark.Temporary) {
+        temps.forEach((t:AttrPrivate<unknown>)=>{console.log(t)})
+        if (vars.abortOnCycle) {
+          throw new Error("Cycle detected in the dependency graph. Cycle involves "+n.debugName())
+        } else {
+          console.warn("Cycle detected in dependency graph, breaking cycle...");
+        }
+        return;
+      }
+      n.setMark(TopoMark.Temporary);
+      temps.push(n);
+      n.getOutgoing().forEach((m:AttrPrivate<unknown>)=>{
+        visit(m);
+      });
+      // remove n from list
+      temps = temps.filter( (e:AttrPrivate<unknown>)=> {
+        return e !== n;
+      });
+      n.setMark(TopoMark.Permanent);
+      topoResult.unshift(n);
+    };
+
+    visit(start);
+    if (temps.length>0){
+      temps.forEach((t)=>{console.log("xxx ",temps.length,t.debugName())});
+      throw new Error(`Topological sort algorithm did not terminate correctly: ${temps.length} marks remaining`)
+    }
+    topoResult.forEach((n)=>{n.setMark(TopoMark.None)}) // clean up for next time
+    // debugging, turn this print on for seeing result of topo sort
+    // topoResult.forEach((n)=>{console.log("topoResult: ",n)});
+    return topoResult;
+  }
+
   // child classes have to implement these two
   public abstract wrappedTypename():string;
 
@@ -211,3 +291,5 @@ export default abstract class AttrPrivateImpl<T> implements AttrPrivate<T> {
   public abstract set(v: T): void;
 
 }
+
+

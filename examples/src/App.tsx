@@ -49,6 +49,7 @@ class App extends React.Component<myProps,myState> {
           <FancyNames model={nameModel2}/>
         </Col>
       </Row>
+      <hr/>
       <Row>
         <Col lg={3}>
           <h3>Example 3</h3>
